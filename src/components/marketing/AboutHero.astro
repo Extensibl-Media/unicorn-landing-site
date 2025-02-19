@@ -1,0 +1,61 @@
+---
+import phone1 from "../../assets/images/phone/1.png";
+---
+
+<!-- Start -->
+<section class="relative overflow-hidden md:py-36 py-24" id="home">
+  <div class="container relative">
+    <div class="grid grid-cols-4 items-center mt-6 gap-[30px] relative">
+      <div class="col-span-4 md:col-span-2">
+        <h6
+          class="text-red-500 uppercase text-sm font-bold tracking-wider mb-3"
+        >
+          App Showcase
+        </h6>
+        <h4
+          class="font-bold lg:leading-normal leading-normal text-4xl lg:text-[54px] mb-5"
+        >
+          Creative way to Showcase your app
+        </h4>
+        <p class="text-slate-400 text-lg max-w-xl">
+          Gain valuable insights into user behavior and drive data-informed
+          decision-making with our revolutionary platform.
+        </p>
+
+        <div class="mt-6">
+          <a href=""
+            ><img
+              src="assets/images/app.png"
+              class="h-12 inline-block m-1"
+              alt=""
+            /></a
+          >
+          <a href=""
+            ><img
+              src="assets/images/play.png"
+              class="h-12 inline-block m-1"
+              alt=""
+            /></a
+          >
+        </div>
+      </div>
+
+      <div class="relative col-span-4 md:col-span-2">
+        <img
+          src={phone1.src}
+          class="mx-auto w-80 rotate-12 relative z-2"
+          alt=""
+        />
+        <div
+          class="overflow-hidden absolute md:size-[500px] size-[400px] bg-gradient-to-tl to-red-500/20 via-red-500/70 from-red-500 bottom-1/2 translate-y-1/2 md:start-0 md:translate-x-0 -translate-x-1/2 md:translate-x-0 translate-x-1/2 z-1 shadow-md shadow-red-500/10 rounded-full"
+        >
+        </div>
+
+        <div
+          class="overflow-hidden after:content-[''] after:absolute after:size-16 after:bg-red-500/20 after:top-0 after:end-6 after:z-1 after:rounded-lg after:animate-[spin_10s_linear_infinite]"
+        >
+        </div>
+      </div>
+    </div><!--end grid-->
+  </div><!--end container-->
+</section><!--end section-->

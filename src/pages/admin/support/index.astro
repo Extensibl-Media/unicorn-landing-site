@@ -1,0 +1,60 @@
+---
+// src/pages/admin/tickets/index.astro
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { TicketsTable } from "@/components/admin/support-ticket-table";
+import { createClient } from "@/lib/supabase/server";
+
+const searchQuery = Astro.url.searchParams.get("search") || "";
+const page = parseInt(Astro.url.searchParams.get("page") || "0");
+const pageSize = 10;
+
+const supabase = createClient(Astro.request, Astro.cookies);
+
+let query = supabase
+  .from("support_tickets")
+  .select("*", { count: "exact" })
+  .order("created_at", { ascending: false });
+
+if (searchQuery) {
+  query = query.or(
+    `subject.ilike.%${searchQuery}%, description.ilike.%${searchQuery}%`,
+  );
+}
+
+const from = page * pageSize;
+const to = from + pageSize - 1;
+query = query.range(from, to);
+
+const { data: tickets, count } = await query;
+
+const totalPages = Math.ceil((count || 0) / pageSize);
+---
+
+<AdminLayout title="Support Tickets">
+  <div class="space-y-4">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Support Tickets</h1>
+        <p class="text-muted-foreground">
+          Manage support requests and inquiries.
+        </p>
+      </div>
+      <a
+        href="/admin/tickets/new"
+        class="bg-primary text-primary-foreground px-4 py-2 rounded-md"
+      >
+        Create Ticket
+      </a>
+    </div>
+
+    <TicketsTable
+      client:only
+      tickets={tickets || []}
+      totalCount={count || 0}
+      currentPage={page}
+      totalPages={totalPages}
+      searchQuery={searchQuery}
+    />
+  </div>
+</AdminLayout>
+---

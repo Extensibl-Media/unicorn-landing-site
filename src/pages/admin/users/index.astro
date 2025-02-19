@@ -1,0 +1,99 @@
+---
+// src/pages/admin/users.astro
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { Tabs } from "@/components/admin/user-tabs";
+import { createClient } from "@/lib/supabase/server";
+
+// Get URL params
+const searchQuery = Astro.url.searchParams.get("search") || "";
+const status = Astro.url.searchParams.get("status") || "all";
+const page = parseInt(Astro.url.searchParams.get("page") || "0");
+const activeTab = Astro.url.searchParams.get("tab") || "all";
+const pageSize = 10;
+
+const supabase = createClient(Astro.request, Astro.cookies);
+
+// Helper function to build base query with common filters
+const buildBaseQuery = (query: any) => {
+  if (searchQuery) {
+    query = query.or(
+      `username.ilike.%${searchQuery}%, email.ilike.%${searchQuery}%`,
+    );
+  }
+
+  // if (status !== "all") {
+  //   query = query.eq("status", status);
+  // }
+
+  return query;
+};
+
+const from = page * pageSize;
+const to = from + pageSize - 1;
+
+// All Profiles Query
+const allProfilesQuery = buildBaseQuery(
+  supabase.from("profiles").select("*", { count: "exact" }),
+).range(from, to);
+
+// New/Unverified Profiles Query
+const newProfilesQuery = buildBaseQuery(
+  supabase
+    .from("profiles")
+    .select("*", { count: "exact" })
+    .eq("approved", false),
+).range(from, to);
+
+// Reported Profiles Query
+const reportedProfilesQuery = buildBaseQuery(
+  supabase
+    .from("profiles")
+    .select("*, reports(*)", { count: "exact" })
+    .not("reports", "is", null),
+).range(from, to);
+
+// Execute queries based on active tab
+let activeData;
+let totalCount;
+
+switch (activeTab) {
+  case "new":
+    const { data: newData, count: newCount } = await newProfilesQuery;
+    activeData = newData;
+    totalCount = newCount;
+    break;
+  case "reported":
+    const { data: reportedData, count: reportedCount } =
+      await reportedProfilesQuery;
+    activeData = reportedData;
+    totalCount = reportedCount;
+    break;
+  default:
+    const { data: allData, count: allCount } = await allProfilesQuery;
+    activeData = allData;
+    totalCount = allCount;
+}
+
+// Calculate pagination
+const totalPages = Math.ceil((totalCount || 0) / pageSize);
+---
+
+<AdminLayout title="Users">
+  <div class="space-y-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Users</h1>
+      <p class="text-muted-foreground">View and manage user profiles.</p>
+    </div>
+
+    <Tabs
+      client:only
+      activeTab={activeTab}
+      users={activeData || []}
+      totalCount={totalCount || 0}
+      currentPage={page}
+      totalPages={totalPages}
+      searchQuery={searchQuery}
+      status={status}
+    />
+  </div>
+</AdminLayout>

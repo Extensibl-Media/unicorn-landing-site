@@ -1,0 +1,8 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import PostForm from "../../../components/admin/blog-form";
+---
+
+<AdminLayout title="New Post">
+  <PostForm client:only />
+</AdminLayout>

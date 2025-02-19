@@ -1,0 +1,261 @@
+---
+import logoDark from "../../assets/images/logo-dark.png";
+import logoLight from "../../assets/images/logo-light.png";
+import appstore from "../../assets/images/appstore.png";
+import playstore from "../../assets/images/playstore.png";
+import { Menu } from "lucide-astro";
+---
+
+<!-- Navbar Start -->
+<nav
+  class="navbar bg-white dark:bg-slate-900 shadow dark:shadow-gray-800"
+  id="navbar"
+>
+  <div
+    class="container mx-auto relative flex flex-wrap items-center justify-between px-4 md:px-0"
+  >
+    <a class="navbar-brand md:me-8" href="index.html">
+      <img src={logoDark.src} class="h-5 inline-block dark:hidden" alt="" />
+      <img src={logoLight.src} class="h-5 hidden dark:inline-block" alt="" />
+    </a>
+
+    <div class="nav-icons flex items-center lg:order-2 md:ms-6">
+      <!-- Navbar Button -->
+      <ul class="list-none menu-social mb-0">
+        <li class="inline">
+          <a
+            href=""
+            class="size-8 inline-flex items-center justify-center tracking-wide align-middle duration-500 text-base text-center"
+            ><img src={appstore.src} alt="" /></a
+          >
+        </li>
+
+        <li class="inline ms-1">
+          <a
+            href=""
+            class="size-8 inline-flex items-center justify-center tracking-wide align-middle duration-500 text-base text-center"
+            ><img src={playstore.src} alt="" /></a
+          >
+        </li>
+      </ul>
+      <!-- Navbar Collapse Manu Button -->
+      <button
+        data-collapse="menu-collapse"
+        type="button"
+        class="collapse-btn inline-flex items-center ms-2 text-slate-900 dark:text-white lg_992:hidden"
+        aria-controls="menu-collapse"
+        aria-expanded="false"
+      >
+        <span class="sr-only">Navigation Menu</span>
+        <Menu class="mdi mdi-menu text-[24px]" />
+      </button>
+    </div>
+
+    <!-- Navbar Manu -->
+    <div
+      class="navigation lg_992:order-1 lg_992:flex hidden ms-auto"
+      id="menu-collapse"
+    >
+      <ul class="navbar-nav" id="navbar-navlist">
+        <li class="nav-item">
+          <a class="nav-link active" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/#features">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/blog">Blog</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/about-us">About Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/#download">Download</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/contact-us">Contact us</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- Navbar End -->
+
+<style lang="scss">
+  /*********************************/
+  /*             Menu              */
+  /*===============================*/
+  .navbar {
+    @apply fixed bg-white top-0 left-0 right-0 z-[999] py-3 transition-all duration-500;
+    .navigation {
+      @apply w-full m-0;
+      .navbar-nav {
+        @apply mt-4 flex flex-row overflow-y-scroll h-24;
+        .nav-link {
+          @apply block p-3 text-[14px] text-slate-900 tracking-wider hover:text-red-500 font-semibold;
+        }
+        .active {
+          .nav-link {
+            @apply text-red-500 dark:text-white;
+          }
+        }
+      }
+      &.ms-auto {
+        .navbar-nav {
+          li {
+            &:last-child {
+              .nav-link {
+                @apply pe-0;
+              }
+            }
+          }
+        }
+      }
+      &.me-auto {
+        .navbar-nav {
+          li {
+            &:first-child {
+              .nav-link {
+                @apply ps-0;
+              }
+            }
+          }
+        }
+      }
+    }
+    .navbar-brand {
+      @apply p-0;
+      .l-dark,
+      .logo-dark-mode {
+        @apply hidden;
+      }
+      .l-light,
+      .logo-light-mode {
+        @apply inline-block;
+      }
+      @media (max-width: 991.98px) {
+        .l-dark {
+          @apply inline-block #{!important};
+        }
+        .l-light {
+          @apply hidden #{!important};
+        }
+      }
+    }
+    .menu-social {
+      .login-btn-primary {
+        @apply hidden;
+      }
+      .login-btn-light {
+        @apply inline-block;
+      }
+
+      @media (max-width: 991.98px) {
+        .login-btn-primary {
+          @apply inline-block #{!important};
+        }
+        .login-btn-light {
+          @apply hidden #{!important};
+        }
+      }
+    }
+    &.is-sticky {
+      @apply bg-white dark:bg-slate-900 shadow dark:shadow-gray-800;
+      .navbar-brand {
+        .l-dark {
+          @apply inline-block;
+        }
+        .l-light {
+          @apply hidden;
+        }
+      }
+
+      .menu-social {
+        .login-btn-primary {
+          @apply inline-block;
+        }
+        .login-btn-light {
+          @apply hidden;
+        }
+      }
+    }
+  }
+
+  @media (min-width: 992px) {
+    .navbar {
+      @apply py-3;
+      .navigation {
+        @apply flex w-auto;
+        .navbar-nav {
+          @apply h-auto mt-0 overflow-visible;
+          .nav-link {
+            @apply border-0 hover:bg-transparent;
+          }
+
+          &.nav-light {
+            .nav-link {
+              @apply block p-3 text-white/60 hover:text-white;
+            }
+            .active {
+              .nav-link {
+                @apply text-white;
+              }
+            }
+          }
+        }
+      }
+
+      .nav-icons {
+        .collapse-btn {
+          @apply hidden;
+        }
+      }
+      &.is-sticky {
+        @apply py-3;
+        .navbar-nav {
+          .nav-link {
+            @apply text-slate-900 dark:text-white/60;
+          }
+          .active {
+            .nav-link {
+              @apply text-red-500;
+            }
+          }
+
+          &.nav-light {
+            .nav-link {
+              @apply text-slate-900 hover:text-red-500 dark:text-white/60 dark:hover:text-white;
+            }
+            .active {
+              .nav-link {
+                @apply text-red-500 dark:text-white;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 991px) {
+    .navbar {
+      @apply bg-white shadow #{!important};
+      .navigation {
+        .navbar-nav {
+          @apply block h-full max-h-80;
+          .nav-link {
+            @apply text-slate-900;
+          }
+          .active {
+            .nav-link {
+              @apply text-red-500;
+            }
+          }
+          .menu-social {
+            @apply mb-5 #{!important};
+          }
+        }
+      }
+    }
+  }
+</style>

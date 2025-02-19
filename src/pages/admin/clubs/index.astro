@@ -1,0 +1,71 @@
+---
+// src/pages/admin/clubs/index.astro
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { ClubsTable } from "@/components/admin/clubs-table";
+import { createClient } from "@/lib/supabase/server";
+
+// Get URL params
+const searchQuery = Astro.url.searchParams.get("search") || "";
+const page = parseInt(Astro.url.searchParams.get("page") || "0");
+const pageSize = 10;
+
+const supabase = createClient(Astro.request, Astro.cookies);
+
+let query = supabase
+  .from("clubs")
+  .select("*", { count: "exact" })
+  .order("name");
+
+if (searchQuery) {
+  query = query.or(
+    `name.ilike.%${searchQuery}%, address.ilike.%${searchQuery}%, city.ilike.%${searchQuery}%, state.ilike.%${searchQuery}%`,
+  );
+}
+
+const from = page * pageSize;
+const to = from + pageSize - 1;
+query = query.range(from, to);
+
+const { data: clubs, count } = await query;
+
+// Calculate pagination
+const totalPages = Math.ceil((count || 0) / pageSize);
+
+const updateSearchParams = (params: Record<string, string>) => {
+  const newParams = new URLSearchParams(window.location.search);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+  });
+  return newParams.toString();
+};
+---
+
+<AdminLayout title="Clubs">
+  <div class="space-y-4">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Clubs</h1>
+        <p class="text-muted-foreground">View and manage clubs.</p>
+      </div>
+      <a
+        href="/admin/clubs/new"
+        class="bg-primary text-primary-foreground px-4 py-2 rounded-md"
+      >
+        Add Club
+      </a>
+    </div>
+
+    <ClubsTable
+      client:only
+      clubs={clubs || []}
+      totalCount={count || 0}
+      currentPage={page}
+      totalPages={totalPages}
+      searchQuery={searchQuery}
+    />
+  </div>
+</AdminLayout>

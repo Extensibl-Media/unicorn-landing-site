@@ -1,0 +1,33 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { createClient } from "@/lib/supabase/server";
+import SuperAdminSettings from "@/components/admin/superadmin-settings";
+import AdminSettings from "@/components/admin/admin-settings";
+
+const supabase = createClient(Astro.request, Astro.cookies);
+
+const {
+  data: { session },
+  error,
+} = await supabase.auth.getSession();
+
+const isSuperUser: boolean = session?.user?.app_metadata.user_level >= 1000;
+
+console.log({ isSuperUser });
+---
+
+<AdminLayout title="Settings">
+  <div class="space-y-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Settings</h1>
+      <p class="text-muted-foreground">Account and platform settings.</p>
+    </div>
+  </div>
+  {
+    isSuperUser ? (
+      <SuperAdminSettings client:load />
+    ) : (
+      <AdminSettings client:load />
+    )
+  }
+</AdminLayout>

@@ -1,0 +1,10 @@
+---
+import LoginCard from "@/components/admin/login-card";
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout>
+  <section class="h-screen flex flex-col gap-4 justify-center items-center p-4">
+    <LoginCard client:load />
+  </section>
+</Layout>

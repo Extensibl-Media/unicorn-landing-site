@@ -1,0 +1,66 @@
+---
+import { ArrowRight, Mail } from "lucide-react";
+import phone2 from "../../assets/images/phone/2-phone.png";
+---
+
+<section class="relative table w-full py-24 overflow-hidden" id="home">
+  <div class="container mx-auto relative">
+    <div
+      class="relative grid md:grid-cols-12 grid-cols-1 items-center mt-10 gap-[30px]"
+    >
+      <div class="md:col-span-6">
+        <div class="md:me-6">
+          <h6 class="text-sm font-bold tracking-wider mb-3">
+            #No1 Trending Apps On Play Store
+          </h6>
+          <h4
+            class="font-bold lg:leading-normal leading-normal text-4xl lg:text-[54px] mb-5"
+          >
+            Landing Page For <br /> Showcase App
+          </h4>
+          <p class="text-slate-400 text-lg max-w-xl mx-auto">
+            Looking for the Perfect Couple or Unicorn to Connect with? Unicorn
+            Landing gives Women in the Lifestyle the Power to make those
+            Connections in a Safe Space.
+          </p>
+
+          <div class="subcribe-form mt-6 mb-3">
+            <form class="relative max-w-lg mx-auto">
+              <input
+                type="email"
+                id="subcribe"
+                name="email"
+                class="form-input border-0 py-4 ps-4 pe-12 w-full h-[50px] outline-none text-black dark:text-white rounded-full bg-white dark:bg-slate-900 shadow dark:shadow-gray-800 focus:border-0 focus:ring-0"
+                placeholder="Your Email Address :"
+              />
+              <button
+                type="submit"
+                class="size-[46px] inline-flex items-center justify-center rounded-full align-middle absolute top-[2px] right-[3px] bg-pink-500 border-pink-500 text-white"
+                ><ArrowRight /></button
+              >
+            </form><!--end form-->
+          </div>
+
+          <span class="text-slate-400 font-medium"
+            >Looking for help? <a href="" class="text-red-500"
+              >Get in touch with us</a
+            ></span
+          >
+        </div>
+      </div><!--end col-->
+
+      <div class="md:col-span-6">
+        <div
+          class="relative after:content-[''] after:absolute after:md:bottom-48 after:-bottom-20 lg:after:-start-10 md:after:-start-20 after:-start-24
+              after:bg-pink-500 after:shadow-2xl after:shadow-pink-500/40 after:z-1 after:rotate-[130deg] after:-rotate-[130deg] after:w-[75rem] after:md:h-[45rem] after:h-[30rem] after:rounded-[30rem]"
+        >
+          <img
+            src={phone2.src}
+            class="lg:max-w-[600px] md:max-w-md relative z-2 mover"
+            alt=""
+          />
+        </div>
+      </div><!--end col-->
+    </div><!--end grid-->
+  </div><!--end container-->
+</section><!--end section-->
