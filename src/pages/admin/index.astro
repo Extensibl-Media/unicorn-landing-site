@@ -9,6 +9,7 @@ import {
     Verified,
 } from "lucide-react";
 import { calculateKpiChange } from "@/lib/utils";
+import { PUBLIC_SITE_URL } from "astro:env/client";
 
 export interface DashboardApiResponse {
     success: boolean;
@@ -48,7 +49,7 @@ export interface DashboardApiResponse {
 }
 
 const dashboardData: DashboardApiResponse = await fetch(
-    "http://localhost:4321/api/dashboard",
+    `${PUBLIC_SITE_URL}/api/dashboard`,
     {
         method: "GET",
         headers: {
