@@ -2,21 +2,24 @@
 import Layout from "../../../layouts/Layout.astro";
 import { LegacyMigrationForm } from "@/components/auth/LegacyInviteForm";
 import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 
-const supabase = createClient(Astro.request, Astro.cookies);
+const supabase = createClient({
+  headers: Astro.request.headers,
+  cookies: Astro.cookies,
+});
 
 const { token } = Astro.params;
 
 const { data: migrationData, error: migrationError } = await supabase
-    .from("legacy_migrations")
-    .select(
-        `
+  .from("legacy_migrations")
+  .select(
+    `
     migration_token,
     status,
     legacy_user:legacy_users (
@@ -26,36 +29,33 @@ const { data: migrationData, error: migrationError } = await supabase
       lat,
       lon
     )
-  `,
-    )
-    .eq("migration_token", token as string)
-    .single();
+  `
+  )
+  .eq("migration_token", token as string)
+  .single();
 
 const isValid =
-    migrationData && !migrationError && migrationData.status === "pending";
+  migrationData && !migrationError && migrationData.status === "pending";
 ---
 
 <Layout title={isValid ? "Complete Your Migration" : "Invalid Invitation"}>
-    <div
-        class="container flex items-center justify-center min-h-screen max-w-screen-sm mx-auto px-4 py-8"
-    >
-        {
-            isValid ? (
-                <LegacyMigrationForm
-                    client:load
-                    migrationData={migrationData}
-                />
-            ) : (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Invalid or Expired Invitation</CardTitle>
-                        <CardDescription>
-                            This invitation link is no longer valid. Please
-                            contact support if you need assistance.
-                        </CardDescription>
-                    </CardHeader>
-                </Card>
-            )
-        }
-    </div>
+  <div
+    class="container flex items-center justify-center min-h-screen max-w-screen-sm mx-auto px-4 py-8"
+  >
+    {
+      isValid ? (
+        <LegacyMigrationForm client:load migrationData={migrationData} />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Invalid or Expired Invitation</CardTitle>
+            <CardDescription>
+              This invitation link is no longer valid. Please contact support if
+              you need assistance.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )
+    }
+  </div>
 </Layout>

@@ -1,53 +1,60 @@
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/browser'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/browser";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export function AuthDebug() {
-  const [debugInfo, setDebugInfo] = useState<any>(null)
-  const [error, setError] = useState<string>('')
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const parseAndLog = async () => {
       // Get the full URL
-      const fullUrl = window.location.href
-      console.log('Full URL:', fullUrl)
+      const fullUrl = window.location.href;
+      console.log("Full URL:", fullUrl);
 
       // Parse query parameters
-      const queryParams = new URLSearchParams(window.location.search)
-      console.log('Query params:', Object.fromEntries(queryParams))
+      const queryParams = new URLSearchParams(window.location.search);
+      console.log("Query params:", Object.fromEntries(queryParams));
 
+      const supabase = createClient();
       try {
-        const supabase = createClient()
-
         // If we have a code in the hash, try to exchange it
-        const code = queryParams.get('code')
+        const code = queryParams.get("code");
         if (code) {
-          console.log('Found code:', code)
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-          if (error) throw error
-          console.log('Session data:', data)
+          console.log("Found code:", code);
+          const { data, error } =
+            await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          console.log("Session data:", data);
         }
 
         // Get current session if any
-        const { data: { session } } = await supabase.auth.getSession()
-        console.log('Current session:', session)
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        console.log("Current session:", user);
 
         // Compile debug info
         setDebugInfo({
           url: fullUrl,
           query: Object.fromEntries(queryParams),
           code: code || null,
-          hasSession: !!session
-        })
-
+          hasSession: !!user,
+        });
       } catch (err) {
-        console.error('Error:', err)
-        setError(`${err}`)
+        console.error("Error:", err);
+        setError(`${err}`);
       }
-    }
+    };
 
-    parseAndLog()
-  }, [])
+    parseAndLog();
+  }, []);
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -58,11 +65,7 @@ export function AuthDebug() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {error ? (
-          <div className="text-red-500 mb-4">
-            Error: {error}
-          </div>
-        ) : null}
+        {error ? <div className="text-red-500 mb-4">Error: {error}</div> : null}
 
         {debugInfo ? (
           <div className="space-y-4">
@@ -106,5 +109,5 @@ export function AuthDebug() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,41 +1,47 @@
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createClient as createBrowserClient } from '@/lib/supabase/browser'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createClient as createBrowserClient } from "@/lib/supabase/browser";
+import { PUBLIC_SITE_URL } from "astro:env/client";
 
 export function RequestPasswordReset() {
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      const supabase = createBrowserClient()
+      const supabase = createBrowserClient();
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      })
+        redirectTo: `/auth/reset-password`,
+      });
 
-      console.log(error)
-      if (error) throw error
+      console.log(error);
+      if (error) throw error;
 
-
-      setSuccess(true)
+      setSuccess(true);
     } catch (err) {
-      console.log(err)
-      setError(`${err}`)
+      console.log(err);
+      setError(`${err}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (success) {
     return (
@@ -43,7 +49,8 @@ export function RequestPasswordReset() {
         <CardHeader>
           <CardTitle>Check Your Email</CardTitle>
           <CardDescription>
-            We've sent you a password reset link. Click the link in the email to reset your password.
+            We've sent you a password reset link. Click the link in the email to
+            reset your password.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -52,7 +59,7 @@ export function RequestPasswordReset() {
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -60,7 +67,8 @@ export function RequestPasswordReset() {
       <CardHeader>
         <CardTitle>Reset Your Password</CardTitle>
         <CardDescription>
-          Enter your email address and we'll send you a link to reset your password.
+          Enter your email address and we'll send you a link to reset your
+          password.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -93,5 +101,5 @@ export function RequestPasswordReset() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

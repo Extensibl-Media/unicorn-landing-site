@@ -9,7 +9,10 @@ const searchQuery = Astro.url.searchParams.get("search") || "";
 const page = parseInt(Astro.url.searchParams.get("page") || "0");
 const pageSize = 10;
 
-const supabase = createClient(Astro.request, Astro.cookies);
+const supabase = createClient({
+  headers: Astro.request.headers,
+  cookies: Astro.cookies,
+});
 
 let query = supabase
   .from("clubs")
@@ -18,7 +21,7 @@ let query = supabase
 
 if (searchQuery) {
   query = query.or(
-    `name.ilike.%${searchQuery}%, address.ilike.%${searchQuery}%, city.ilike.%${searchQuery}%, state.ilike.%${searchQuery}%`,
+    `name.ilike.%${searchQuery}%, address.ilike.%${searchQuery}%, city.ilike.%${searchQuery}%, state.ilike.%${searchQuery}%`
   );
 }
 

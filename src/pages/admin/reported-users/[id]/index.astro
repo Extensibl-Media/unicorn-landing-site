@@ -1,0 +1,98 @@
+---
+// src/pages/admin/reports/[id].astro
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { ReportDetails } from "@/components/admin/report-details";
+import { createClient } from "@/lib/supabase/server";
+
+// Get the report ID from the URL
+const { id } = Astro.params;
+if (!id) {
+    return Astro.redirect("/admin/reports");
+}
+
+// Create Supabase client
+const supabase = createClient({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+});
+
+// Fetch the report with all related user data
+const { data: report, error } = await supabase
+    .from("user_reports")
+    .select(
+        `
+    *,
+    reported_profile:profile_id (
+      id,
+      username,
+      email,
+      first_name,
+      last_name,
+      avatar_url,
+      profile_type,
+      bio,
+      verified,
+      approved,
+      created_at
+    ),
+    reporter_profile:reported_by (
+      id,
+      username,
+      avatar_url
+    )
+  `,
+    )
+    .eq("id", id)
+    .single();
+
+if (error || !report) {
+    console.error("Error fetching report:", error);
+    return Astro.redirect("/admin/reports");
+}
+
+// Fetch recent reports for this user to see if there's a pattern
+const { data: otherReports } = await supabase
+    .from("user_reports")
+    .select(
+        `
+    id,
+    reason,
+    report_status,
+    created_at,
+    reporter_profile:reported_by (
+      username
+    )
+  `,
+    )
+    .eq("profile_id", report.profile_id as string)
+    .neq("id", id)
+    .order("created_at", { ascending: false })
+    .limit(5);
+---
+
+<AdminLayout title={`Report: ${report.reason}`}>
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">
+                    Report Details
+                </h1>
+                <p class="text-muted-foreground">
+                    Review report and take action
+                </p>
+            </div>
+            <a
+                href="/admin/reported-users"
+                class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+            >
+                Back to Reports
+            </a>
+        </div>
+
+        <ReportDetails
+            client:load
+            report={report}
+            otherReports={otherReports || []}
+        />
+    </div>
+</AdminLayout>

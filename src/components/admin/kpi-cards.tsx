@@ -1,34 +1,62 @@
-import * as React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
-export default function KPICards() {
+const StatsCard = ({ title, value, change, isPositive, icon: Icon }) => {
   return (
-    <div className="grid grid-cols-12 gap-4">
-      <div className="col-span-12 md:col-span-4">
-        <Card className=''>
-          <CardHeader><CardTitle>New Users</CardTitle></CardHeader>
-          <CardContent>
-            <p className='text-3xl md:text-4xl font-bold'>21</p>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="col-span-12 md:col-span-4">
-        <Card className=''>
-          <CardHeader><CardTitle>New Verified Requests</CardTitle></CardHeader>
-          <CardContent>
-            <p className='text-3xl md:text-4xl font-bold'>21</p>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="col-span-12 md:col-span-4">
-        <Card className=''>
-          <CardHeader><CardTitle>New Support Tickets</CardTitle></CardHeader>
-          <CardContent>
-            <p className='text-3xl md:text-4xl font-bold'>21</p>
-          </CardContent>
-        </Card>
-      </div>
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-gray-500">
+          {title}
+        </CardTitle>
+        <Icon className="h-4 w-4 text-gray-500" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <div className="flex items-center pt-1">
+          {isPositive ? (
+            <ArrowUpRight className="mr-1 h-4 w-4 text-green-500" />
+          ) : (
+            <ArrowDownRight className="mr-1 h-4 w-4 text-red-500" />
+          )}
+          <span
+            className={`text-xs ${isPositive ? "text-green-500" : "text-red-500"}`}
+          >
+            {change}% from last week
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
+const KPIDashboard = ({
+  stats,
+}: {
+  stats: {
+    title: string;
+    value: string;
+    change: number;
+    isPositive: boolean;
+    icon: Icon;
+  }[];
+}) => {
+  return (
+    <div className="w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {stats?.map((stat, index) => (
+          <StatsCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            change={stat.change}
+            isPositive={stat.isPositive}
+            icon={stat.icon}
+          />
+        ))}
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default KPIDashboard;

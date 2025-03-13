@@ -1,5 +1,5 @@
 // src/components/admin/clubs-table.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Eye, MoreHorizontal, Search, Star } from "lucide-react";
-import type { Database } from '@/types/supabase';
-import type { EventWithClub } from "@/pages/admin/events/index.astro"
-import { cn } from '@/lib/utils';
-import { Badge } from '../ui/badge';
+import type { Database } from "@/types/supabase";
+
+export type EventWithClub = Database["public"]["Tables"]["events"]["Row"] & {
+  clubs: Database["public"]["Tables"]["clubs"]["Row"] | null;
+};
 
 interface EventsTableProps {
   events: EventWithClub[];
@@ -36,11 +42,13 @@ export function EventsTable({
     const params = new URLSearchParams(window.location.search);
 
     if (newSearch !== undefined) {
-      newSearch ? params.set('search', newSearch) : params.delete('search');
+      newSearch ? params.set("search", newSearch) : params.delete("search");
     }
 
     if (newPage !== undefined) {
-      newPage > 0 ? params.set('page', newPage.toString()) : params.delete('page');
+      newPage > 0
+        ? params.set("page", newPage.toString())
+        : params.delete("page");
     }
 
     window.location.href = `${window.location.pathname}?${params.toString()}`;
@@ -56,7 +64,10 @@ export function EventsTable({
     return () => clearTimeout(timeoutId);
   }, [search]);
 
-  const handlePageChange = React.useCallback((newPage: number) => updateSearchParams(undefined, newPage), [])
+  const handlePageChange = React.useCallback(
+    (newPage: number) => updateSearchParams(undefined, newPage),
+    [],
+  );
 
   return (
     <div className="space-y-4">
@@ -77,11 +88,9 @@ export function EventsTable({
           <TableHeader>
             <TableRow>
               <TableHead>Event Name</TableHead>
-              <TableHead>Sponsored</TableHead>
               <TableHead>Venue</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead>Time</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -110,9 +119,6 @@ export function EventsTable({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={cn(event.sponsored_event ? "bg-green-500" : "bg-gray-400")}>{event.sponsored_event ? "Yes" : "No"}</Badge>
-                  </TableCell>
-                  <TableCell>
                     <p>{event?.clubs?.name || null}</p>
                   </TableCell>
                   <TableCell>
@@ -127,9 +133,6 @@ export function EventsTable({
                     <p>{new Date(event.date).toLocaleDateString()}</p>
                   </TableCell>
                   <TableCell>
-                    <p>{event.all_day ? "All Day" : <><p>Start: {event.start_time}</p><p>End: {event.end_time}</p></>}</p>
-                  </TableCell>
-                  <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
@@ -138,7 +141,9 @@ export function EventsTable({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => window.location.href = `/admin/events/${event.id}`}
+                          onClick={() =>
+                            (window.location.href = `/admin/events/${event.id}`)
+                          }
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           View Details

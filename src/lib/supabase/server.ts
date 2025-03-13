@@ -1,37 +1,49 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import type { AstroCookies } from 'astro';
-import type { Database } from '@/types/supabase';
+import {
+  createServerClient,
+  parseCookieHeader,
+  type CookieOptionsWithName,
+} from "@supabase/ssr";
+import type { AstroCookies } from "astro";
+import type { Database } from "@/types/supabase";
+import {
+  PUBLIC_SUPABASE_ANON_KEY,
+  PUBLIC_SUPABASE_URL,
+} from "astro:env/client";
 
-export const createClient = (request: Request, cookies: AstroCookies) => {
-  return createServerClient<Database>(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+export const cookieOptions: CookieOptionsWithName = {
+  // Don't hardcode the cookie name as it can change with project ID
+  path: "/",
+  secure: process.env.NODE_ENV === "production",
+  httpOnly: true,
+  sameSite: "lax",
+  maxAge: 60 * 60 * 24 * 7, // 7 days
+};
+
+export const createClient = (context: {
+  headers: Headers;
+  cookies: AstroCookies;
+}) => {
+  const supabase = createServerClient<Database>(
+    PUBLIC_SUPABASE_URL,
+    PUBLIC_SUPABASE_ANON_KEY,
     {
+      auth: {
+        persistSession: false, // Important: keep this as false for SSR
+        autoRefreshToken: false, // Don't auto-refresh on server
+        flowType: "pkce",
+      },
+      cookieOptions,
       cookies: {
-        get(key: string) {
-          // Handle the combined auth token cookie
-          if (key === 'sb-access-token' || key === 'sb-refresh-token') {
-            const authCookie = cookies.get('sb-xbnnssknhufakdoahptv-auth-token')?.value;
-            if (!authCookie) return null;
-
-            try {
-              const parsed = JSON.parse(decodeURIComponent(authCookie));
-              if (key === 'sb-access-token') return parsed.access_token;
-              if (key === 'sb-refresh-token') return parsed.refresh_token;
-            } catch (e) {
-              console.error('Error parsing auth cookie:', e);
-              return null;
-            }
-          }
-          return cookies.get(key)?.value;
+        getAll() {
+          return parseCookieHeader(context.headers.get("Cookie") ?? "");
         },
-        set(key: string, value: string, options: CookieOptions) {
-          cookies.set(key, value, options);
-        },
-        remove(key: string, options: CookieOptions) {
-          cookies.delete(key, options);
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            context.cookies.set(name, value, options),
+          );
         },
       },
-    }
+    },
   );
+  return supabase;
 };

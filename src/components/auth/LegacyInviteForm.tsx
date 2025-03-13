@@ -30,7 +30,6 @@ interface Props {
 }
 
 export function LegacyMigrationForm({ migrationData }: Props) {
-  console.log({ migrationData });
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -80,6 +79,7 @@ export function LegacyMigrationForm({ migrationData }: Props) {
             username: migrationData.legacy_user.nickname,
             latitude: migrationData.legacy_user.lat,
             longitude: migrationData.legacy_user.lon,
+            approved: true,
           })
           .eq("id", authData.user.id);
 
@@ -118,7 +118,7 @@ export function LegacyMigrationForm({ migrationData }: Props) {
       <CardHeader>
         <CardTitle>Welcome Back to Unicorn Landing!</CardTitle>
         <CardDescription>
-          Set up your account to claim your existing username
+          Set up your new account to claim your existing username
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -133,7 +133,6 @@ export function LegacyMigrationForm({ migrationData }: Props) {
               className="bg-muted"
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input

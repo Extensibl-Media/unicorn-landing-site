@@ -1,5 +1,5 @@
 // src/components/UsersTable.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,12 +17,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpRightSquare, BadgeCheck, Eye, MoreHorizontal, Pencil, Rocket, Search, SquareCheckBig, Trash } from "lucide-react";
+import {
+  ArrowUpRightSquare,
+  BadgeCheck,
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Rocket,
+  Search,
+  SquareCheckBig,
+  Trash,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Database } from '@/types/supabase';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-type Profile = Database['public']['Tables']['profiles']['Row']
+import type { Database } from "@/types/supabase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import AVATAR_FALLBACK from "src/assets/images/avatar-fallback.png";
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface UsersTableProps {
   users: Profile[];
@@ -65,39 +81,22 @@ export function UsersTable({
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or bio..."
+            placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8"
           />
         </div>
-        {/* <Select
-          value={status}
-          onValueChange={onStatusChange}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-            <SelectItem value="deleted">Deleted</SelectItem>
-          </SelectContent>
-        </Select> */}
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded-md ">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Profile Image</TableHead>
               <TableHead>Username</TableHead>
-              <TableHead>Age</TableHead>
-              <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Verified</TableHead>
-              <TableHead>Joined</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -111,23 +110,31 @@ export function UsersTable({
             ) : (
               users.map((profile) => (
                 <TableRow key={profile.id}>
-                  <TableCell><img className='w-12 h-12 object-cover rounded-md' src={profile.avatar_url || undefined} /></TableCell>
-                  <TableCell className="font-medium">
-                    {profile.username ?? "{No Username}"}
+                  <TableCell>
+                    <img
+                      className="w-12 h-12 object-cover rounded-md"
+                      src={profile.avatar_url || AVATAR_FALLBACK.src}
+                    />
                   </TableCell>
-                  <TableCell>{profile.age}</TableCell>
-                  <TableCell>{profile.location}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex flex-col">
+                      <p>{profile.username ?? "{No Username}"}</p>
+                      <p className="text-xs text-gray-500">{profile.email}</p>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <Badge
-                      className={cn(profile.approved ? "bg-green-500 hover:bg-green-500" : "bg-yellow-500 hover:bg-yellow-500")}>
+                      className={cn(
+                        profile.approved
+                          ? "bg-green-500 hover:bg-green-500"
+                          : "bg-yellow-500 hover:bg-yellow-500",
+                      )}
+                    >
                       {profile.approved ? "Approved" : "Pending"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     {profile.verified ? <BadgeCheck color="#f72ea2" /> : null}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(profile.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -137,14 +144,18 @@ export function UsersTable({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {!profile.approved && <DropdownMenuItem
-                          onClick={() => console.log('approve user')}
-                        >
-                          <SquareCheckBig className="mr-2 h-4 w-4" />
-                          Approve
-                        </DropdownMenuItem>}
+                        {!profile.approved && (
+                          <DropdownMenuItem
+                            onClick={() => console.log("approve user")}
+                          >
+                            <SquareCheckBig className="mr-2 h-4 w-4" />
+                            Approve
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
-                          onClick={() => window.location.href = `/admin/users/${profile.id}`}
+                          onClick={() =>
+                            (window.location.href = `/admin/users/${profile.id}`)
+                          }
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           View

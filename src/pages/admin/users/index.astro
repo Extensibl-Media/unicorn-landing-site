@@ -11,13 +11,16 @@ const page = parseInt(Astro.url.searchParams.get("page") || "0");
 const activeTab = Astro.url.searchParams.get("tab") || "all";
 const pageSize = 10;
 
-const supabase = createClient(Astro.request, Astro.cookies);
+const supabase = createClient({
+  headers: Astro.request.headers,
+  cookies: Astro.cookies,
+});
 
 // Helper function to build base query with common filters
 const buildBaseQuery = (query: any) => {
   if (searchQuery) {
     query = query.or(
-      `username.ilike.%${searchQuery}%, email.ilike.%${searchQuery}%`,
+      `username.ilike.%${searchQuery}%, email.ilike.%${searchQuery}%`
     );
   }
 
@@ -33,7 +36,7 @@ const to = from + pageSize - 1;
 
 // All Profiles Query
 const allProfilesQuery = buildBaseQuery(
-  supabase.from("profiles").select("*", { count: "exact" }),
+  supabase.from("profiles").select("*", { count: "exact" })
 ).range(from, to);
 
 // New/Unverified Profiles Query
@@ -41,7 +44,7 @@ const newProfilesQuery = buildBaseQuery(
   supabase
     .from("profiles")
     .select("*", { count: "exact" })
-    .eq("approved", false),
+    .eq("approved", false)
 ).range(from, to);
 
 // Reported Profiles Query
@@ -49,7 +52,7 @@ const reportedProfilesQuery = buildBaseQuery(
   supabase
     .from("profiles")
     .select("*, reports(*)", { count: "exact" })
-    .not("reports", "is", null),
+    .not("reports", "is", null)
 ).range(from, to);
 
 // Execute queries based on active tab

@@ -1,41 +1,54 @@
-import { useState, useEffect } from 'react'
-import { createClient as createBrowserClient } from '@/lib/supabase/browser'
+import { useState, useEffect } from "react";
+import { createClient as createBrowserClient } from "@/lib/supabase/browser";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PUBLIC_SITE_URL } from "astro:env/client";
 
 export function UpdatePassword() {
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const supabase = createBrowserClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const { data, error } = await supabase.auth.getUser();
+    console.log({ data, error });
 
     try {
-      const supabase = createBrowserClient()
-
       const { error } = await supabase.auth.updateUser({
-        password: password
-      })
+        password: password,
+      });
 
-      if (error) throw error
+      if (error) throw error;
 
-      setSuccess(true)
+      setSuccess(true);
 
-      // Try to open the app after successful password reset
-      window.location.href = 'unicornapp://login'
+      await supabase.auth.signOut();
+      await fetch(`${PUBLIC_SITE_URL}/auth/reset-password`, {
+        method: "POST",
+        body: JSON.stringify({ logout: true }),
+      });
     } catch (err) {
-      setError(`${err}`)
-      setLoading(false)
+      console.log(err);
+      setError(`${err}`);
+      setLoading(false);
     }
-  }
+  };
 
   if (success) {
     return (
@@ -43,16 +56,18 @@ export function UpdatePassword() {
         <CardHeader>
           <CardTitle>Password Updated!</CardTitle>
           <CardDescription>
-            Your password has been successfully updated. Opening the Unicorn app...
+            Your password has been successfully updated. Opening the Unicorn
+            app...
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            If the app doesn't open automatically, you can open it manually and sign in with your new password.
+            If the app doesn't open automatically, you can open it manually and
+            sign in with your new password.
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -80,9 +95,7 @@ export function UpdatePassword() {
 
           {error && (
             <Alert variant="destructive">
-              <AlertDescription>
-                {error}
-              </AlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
@@ -96,5 +109,5 @@ export function UpdatePassword() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

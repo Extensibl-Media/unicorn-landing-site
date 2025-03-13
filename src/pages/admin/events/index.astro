@@ -5,31 +5,30 @@ import { EventsTable } from "@/components/admin/events-table";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/supabase";
 
-export type EventWithClub = Database["public"]["Tables"]["events"]["Row"] & {
-  clubs: Database["public"]["Tables"]["clubs"]["Row"] | null;
-};
-
 // Get URL params
 const searchQuery = Astro.url.searchParams.get("search") || "";
 const page = parseInt(Astro.url.searchParams.get("page") || "0");
 const pageSize = 10;
 
-const supabase = createClient(Astro.request, Astro.cookies);
+const supabase = createClient({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+});
 
 let query = supabase
-  .from("events")
-  .select(
-    `*,
+    .from("events")
+    .select(
+        `*,
     clubs(*)
     `,
-    { count: "exact" },
-  )
-  .order("name");
+        { count: "exact" },
+    )
+    .order("name");
 
 if (searchQuery) {
-  query = query.or(
-    `name.ilike.%${searchQuery}%, address.ilike.%${searchQuery}%, city.ilike.%${searchQuery}%, state.ilike.%${searchQuery}%`,
-  );
+    query = query.or(
+        `name.ilike.%${searchQuery}%, address.ilike.%${searchQuery}%, city.ilike.%${searchQuery}%, state.ilike.%${searchQuery}%`,
+    );
 }
 
 const from = page * pageSize;
@@ -38,34 +37,32 @@ query = query.range(from, to);
 
 const { data: events, count } = await query;
 
-console.log(events);
-
 // Calculate pagination
 const totalPages = Math.ceil((count || 0) / pageSize);
 ---
 
 <AdminLayout title="Events">
-  <div class="space-y-4">
-    <div class="flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight">Events</h1>
-        <p class="text-muted-foreground">View and manage events.</p>
-      </div>
-      <a
-        href="/admin/clubs/new"
-        class="bg-primary text-primary-foreground px-4 py-2 rounded-md"
-      >
-        Add Event
-      </a>
-    </div>
+    <div class="space-y-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Events</h1>
+                <p class="text-muted-foreground">View and manage events.</p>
+            </div>
+            <a
+                href="/admin/events/new"
+                class="bg-primary text-primary-foreground px-4 py-2 rounded-md"
+            >
+                Add Event
+            </a>
+        </div>
 
-    <EventsTable
-      client:only
-      events={events || []}
-      totalCount={count || 0}
-      currentPage={page}
-      totalPages={totalPages}
-      searchQuery={searchQuery}
-    />
-  </div>
+        <EventsTable
+            client:only
+            events={events || []}
+            totalCount={count || 0}
+            currentPage={page}
+            totalPages={totalPages}
+            searchQuery={searchQuery}
+        />
+    </div>
 </AdminLayout>

@@ -1,0 +1,87 @@
+---
+// src/pages/admin/clubs/new.astro
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { NewClubForm } from "@/components/admin/new-club-form";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+// Handling form submission
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const lat = formData.get("lat")
+      ? parseFloat(formData.get("lat") as string)
+      : null;
+    const lon = formData.get("lon")
+      ? parseFloat(formData.get("lon") as string)
+      : null;
+    const address = formData.get("address") as string;
+    const city = formData.get("city") as string;
+    const state = formData.get("state") as string;
+    const website_url = formData.get("website_url") as string;
+    const cover_image = formData.get("cover_image") as string;
+
+    // Create Supabase client with user session
+    const supabase = createAdminClient();
+
+    const { data, error } = await supabase.from("clubs").insert({
+      name,
+      description,
+      latitude: lat,
+      longitude: lon,
+      address,
+      city,
+      state,
+      website_url,
+      cover_image,
+      rating: 0,
+      total_reviews: 0,
+      created_at: new Date().toISOString(),
+    });
+
+    if (error) {
+      console.error("Error adding club:", error);
+
+      // Return with error message instead of throwing
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: error.message,
+          details: error,
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    // Redirect to clubs page after successful creation
+    return Astro.redirect("/admin/clubs");
+  } catch (error) {
+    console.error("Error processing form:", error);
+  }
+}
+---
+
+<AdminLayout title="Add New Club">
+  <div class="space-y-4">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Add New Club</h1>
+        <p class="text-muted-foreground">Create a new club in the database.</p>
+      </div>
+      <a
+        href="/admin/clubs"
+        class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+      >
+        Back to Clubs
+      </a>
+    </div>
+
+    <NewClubForm client:load />
+  </div>
+</AdminLayout>

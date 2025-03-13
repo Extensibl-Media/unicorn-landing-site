@@ -1,5 +1,49 @@
 ---
+// src/pages/admin/users/[id].astro
 import AdminLayout from "@/layouts/AdminLayout.astro";
+import { UserProfileDetails } from "@/components/admin/user-profile-details";
+import { createClient } from "@/lib/supabase/server";
+
+// Get the user ID from the URL
+const { id } = Astro.params;
+if (!id) {
+    return Astro.redirect("/admin/users");
+}
+
+// Fetch the user data
+const supabase = createClient({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+});
+
+const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+if (error || !profile) {
+    return Astro.redirect("/admin/users");
+}
 ---
 
-<AdminLayout />
+<AdminLayout title={`User: ${profile.username}`}>
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">User Profile</h1>
+                <p class="text-muted-foreground">
+                    View and manage user details
+                </p>
+            </div>
+            <a
+                href="/admin/users"
+                class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+            >
+                Back to Users
+            </a>
+        </div>
+
+        <UserProfileDetails client:load profile={profile} />
+    </div>
+</AdminLayout>

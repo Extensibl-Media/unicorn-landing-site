@@ -1,0 +1,55 @@
+---
+// src/pages/admin/events/[id].astro
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { EventDetails } from "@/components/admin/event-details";
+import { createClient } from "@/lib/supabase/server";
+
+// Get the event ID from the URL
+const { id } = Astro.params;
+if (!id) {
+    return Astro.redirect("/admin/events");
+}
+
+// Create Supabase client
+const supabase = createClient({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+});
+
+// Fetch the event data
+const { data: event, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+if (error || !event) {
+    return Astro.redirect("/admin/events");
+}
+
+// Fetch list of clubs for the dropdown
+const { data: clubs } = await supabase
+    .from("clubs")
+    .select("id, name")
+    .order("name");
+---
+
+<AdminLayout title={`Event: ${event.name}`}>
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">{event.name}</h1>
+                <p class="text-muted-foreground">
+                    View and manage event details
+                </p>
+            </div>
+            <a
+                href="/admin/events"
+                class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+            >
+                Back to Events
+            </a>
+        </div>
+        <EventDetails client:load event={event} clubs={clubs || []} />
+    </div>
+</AdminLayout>

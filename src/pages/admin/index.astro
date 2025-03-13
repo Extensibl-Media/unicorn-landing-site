@@ -1,9 +1,104 @@
 ---
 import KPICards from "@/components/admin/kpi-cards";
 import AdminLayout from "@/layouts/AdminLayout.astro";
+import {
+    Users,
+    UserPlus,
+    DollarSign,
+    TriangleAlert,
+    Verified,
+} from "lucide-react";
+import { calculateKpiChange } from "@/lib/utils";
+
+export interface DashboardApiResponse {
+    success: boolean;
+    dateRanges: {
+        currentWeekStart: string;
+        previousWeekStart: string;
+        previousWeekEnd: string;
+    };
+    profiles: {
+        currentWeek: {
+            count: number;
+            data: Array<{
+                username: string;
+                avatar_url: string | null;
+                created_at: string;
+            }>;
+        };
+        previousWeek: {
+            count: number;
+        };
+    };
+    verificationRequests: {
+        currentWeek: {
+            count: number;
+            data: Array<{
+                id: string;
+                user_id: string;
+                created_at: string;
+                status: string;
+            }>;
+        };
+        previousWeek: {
+            count: number;
+        };
+    };
+    error?: string; // For error responses
+}
+
+const dashboardData: DashboardApiResponse = await fetch(
+    "http://localhost:4321/api/dashboard",
+    {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    },
+).then((res) => res.json());
+
+const newUserStats = calculateKpiChange(
+    dashboardData.profiles.currentWeek.count,
+    dashboardData.profiles.previousWeek.count,
+    {
+        formatValue: (val: number) => val.toLocaleString(),
+    },
+);
+
+const newVerificationStats = calculateKpiChange(
+    dashboardData.verificationRequests.currentWeek.count,
+    dashboardData.verificationRequests.previousWeek.count,
+    {
+        formatValue: (val: number) => val.toLocaleString(),
+    },
+);
+
+const stats = [
+    {
+        title: "New Users",
+        value: newUserStats.value,
+        change: newUserStats.change,
+        isPositive: newUserStats.isPositive,
+        icon: Users,
+    },
+    {
+        title: "Verified Requests",
+        value: newVerificationStats.value,
+        change: newVerificationStats.change,
+        isPositive: newVerificationStats.isPositive,
+        icon: Verified,
+    },
+    {
+        title: "Reported Users",
+        value: "$12,543",
+        change: 2.3,
+        isPositive: false,
+        icon: TriangleAlert,
+    },
+];
 ---
 
 <AdminLayout title="Dashboard">
-  <!-- KPI Cards -->
-  <KPICards />
+    <!-- KPI Cards -->
+    <KPICards stats={stats} />
 </AdminLayout>

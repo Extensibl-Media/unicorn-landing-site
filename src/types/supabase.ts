@@ -252,6 +252,80 @@ export type Database = {
         }
         Relationships: []
       }
+      device_push_tokens: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: number
+          is_current: boolean
+          last_used_at: string | null
+          push_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: number
+          is_current?: boolean
+          last_used_at?: string | null
+          push_token: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: number
+          is_current?: boolean
+          last_used_at?: string | null
+          push_token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_push_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dislikes: {
+        Row: {
+          created_at: string
+          disliked_user_id: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          disliked_user_id?: string
+          id?: number
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          disliked_user_id?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dislikes_disliked_user_id_fkey"
+            columns: ["disliked_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dislikes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_reviews: {
         Row: {
           created_at: string
@@ -743,6 +817,7 @@ export type Database = {
           created_at: string
           id: number
           status: Database["public"]["Enums"]["verification_status"]
+          updated_at: string | null
           user_id: string
           verification_image: string
           verified: boolean
@@ -751,6 +826,7 @@ export type Database = {
           created_at?: string
           id?: number
           status?: Database["public"]["Enums"]["verification_status"]
+          updated_at?: string | null
           user_id: string
           verification_image: string
           verified?: boolean
@@ -759,6 +835,7 @@ export type Database = {
           created_at?: string
           id?: number
           status?: Database["public"]["Enums"]["verification_status"]
+          updated_at?: string | null
           user_id?: string
           verification_image?: string
           verified?: boolean
@@ -783,7 +860,6 @@ export type Database = {
           completed_onboarding: boolean
           created_at: string
           email: string | null
-          expo_push_token: string | null
           featured_expiry: string | null
           featured_user: boolean | null
           first_name: string | null
@@ -819,7 +895,6 @@ export type Database = {
           completed_onboarding?: boolean
           created_at?: string
           email?: string | null
-          expo_push_token?: string | null
           featured_expiry?: string | null
           featured_user?: boolean | null
           first_name?: string | null
@@ -857,7 +932,6 @@ export type Database = {
           completed_onboarding?: boolean
           created_at?: string
           email?: string | null
-          expo_push_token?: string | null
           featured_expiry?: string | null
           featured_user?: boolean | null
           first_name?: string | null
@@ -1000,7 +1074,6 @@ export type Database = {
         Row: {
           created_at: string
           email_notifications_enabled: boolean
-          expo_push_token: string | null
           geolocation: Json | null
           id: number
           language: string | null
@@ -1014,7 +1087,6 @@ export type Database = {
         Insert: {
           created_at?: string
           email_notifications_enabled?: boolean
-          expo_push_token?: string | null
           geolocation?: Json | null
           id?: number
           language?: string | null
@@ -1028,7 +1100,6 @@ export type Database = {
         Update: {
           created_at?: string
           email_notifications_enabled?: boolean
-          expo_push_token?: string | null
           geolocation?: Json | null
           id?: number
           language?: string | null
@@ -1121,28 +1192,34 @@ export type Database = {
       }
       user_reports: {
         Row: {
+          created_at: string | null
           details: string | null
           id: number
           profile_id: string | null
           reason: string
           report_status: Database["public"]["Enums"]["report_status_types"]
           reported_by: string | null
+          updated_at: string | null
         }
         Insert: {
+          created_at?: string | null
           details?: string | null
           id?: never
           profile_id?: string | null
           reason: string
           report_status?: Database["public"]["Enums"]["report_status_types"]
           reported_by?: string | null
+          updated_at?: string | null
         }
         Update: {
+          created_at?: string | null
           details?: string | null
           id?: never
           profile_id?: string | null
           reason?: string
           report_status?: Database["public"]["Enums"]["report_status_types"]
           reported_by?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1155,6 +1232,42 @@ export type Database = {
           {
             foreignKeyName: "user_reports_profile_id_fkey"
             columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_warnings: {
+        Row: {
+          created_at: string
+          id: number
+          report_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          report_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          report_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_warnings_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "user_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_warnings_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1208,6 +1321,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      cleanup_expired_dislikes: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      cleanup_orphaned_conversations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       connect_match_and_create_conversation: {
         Args: {
           p_match_id: number
@@ -1222,6 +1343,15 @@ export type Database = {
           claim: string
         }
         Returns: string
+      }
+      delete_conversation_between_users: {
+        Args: {
+          p_user_id_1: string
+          p_user_id_2: string
+        }
+        Returns: {
+          deleted_conversation_id: string
+        }[]
       }
       delete_conversation_for_user: {
         Args: {
@@ -1268,12 +1398,15 @@ export type Database = {
       get_filtered_profiles: {
         Args: {
           user_id: string
-          filter_type: Database["public"]["Enums"]["profile_filter_type"]
-          search_radius_meters?: number
-          days_ago?: number
-          page_size?: number
+          filter_type: string
+          search_radius_meters: number
+          days_ago: number
+          page_size: number
           last_value?: string
+          last_value_featured?: boolean
           search_term?: string
+          target_latitude?: number
+          target_longitude?: number
         }
         Returns: {
           age: number | null
@@ -1284,7 +1417,6 @@ export type Database = {
           completed_onboarding: boolean
           created_at: string
           email: string | null
-          expo_push_token: string | null
           featured_expiry: string | null
           featured_user: boolean | null
           first_name: string | null
@@ -1387,6 +1519,49 @@ export type Database = {
           last_message_has_attachments: boolean
           has_unread_messages: boolean
           other_participants: Json
+        }[]
+      }
+      get_user_reports: {
+        Args: {
+          search_query?: string
+          status_filter?: string
+          page_number?: number
+          page_size?: number
+        }
+        Returns: {
+          id: number
+          profile_id: string
+          reason: string
+          details: string
+          reported_by: string
+          report_status: string
+          created_at: string
+          updated_at: string
+          reported_username: string
+          reported_avatar_url: string
+          reporter_username: string
+          reporter_avatar_url: string
+          total_count: number
+        }[]
+      }
+      get_verification_requests: {
+        Args: {
+          search_query?: string
+          status_filter?: string
+          page_number?: number
+          page_size?: number
+        }
+        Returns: {
+          id: number
+          user_id: string
+          verified: boolean
+          verification_image: string
+          status: string
+          created_at: string
+          profile_id: string
+          username: string
+          avatar_url: string
+          total_count: number
         }[]
       }
       increment_post_views: {
