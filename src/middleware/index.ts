@@ -14,7 +14,7 @@ export const onRequest = defineMiddleware(
 
     // If it's not an admin route, continue normally
     if (!isAdminRoute) {
-      console.log("Not Admin Route");
+      // console.log("Not Admin Route");
       return next();
     }
 
@@ -24,16 +24,16 @@ export const onRequest = defineMiddleware(
       error,
     } = await supabase.auth.getUser();
 
-    console.log("Server-side session check:", {
-      user,
-      app_metadata: user?.app_metadata,
-      error,
-      hasUser: user ? "yes" : "no",
-    });
+    // console.log("Server-side session check:", {
+    //   user,
+    //   app_metadata: user?.app_metadata,
+    //   error,
+    //   hasUser: user ? "yes" : "no",
+    // });
 
     // If it's the login page
     if (isLoginPage) {
-      console.log("Login Route");
+      // console.log("Login Route");
 
       // If we have a session and proper admin level, redirect to admin dashboard
       if (
@@ -60,7 +60,7 @@ export const onRequest = defineMiddleware(
 
     // For all other admin routes
     if (!user) {
-      console.log("No session, need to log in");
+      // console.log("No session, need to log in");
 
       // Store the intended destination for post-login redirect
       const destination = url.pathname + url.search;
@@ -76,7 +76,7 @@ export const onRequest = defineMiddleware(
         user.app_metadata.user_level >= MIN_ADMIN_LEVEL);
 
     if (!isAdmin) {
-      console.log("Not Admin");
+      // console.log("Not Admin");
 
       return redirect("/");
     }
@@ -89,18 +89,14 @@ export const onRequest = defineMiddleware(
           user.app_metadata.user_level >= 9001);
 
       if (!isSuperAdmin) {
-        console.log("Not Superadmin");
+        // console.log("Not Superadmin");
 
         return redirect("/admin");
       }
     }
 
     // All checks passed, continue to route
-    console.log("Welcome, Admin User");
-
-    if (user) {
-      locals.user = user;
-    }
+    // console.log("Welcome, Admin User");
 
     const response = await next();
     return response;
