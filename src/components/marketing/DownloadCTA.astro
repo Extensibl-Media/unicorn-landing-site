@@ -1,0 +1,61 @@
+---
+import matchImg from "../../assets/images/match-snip.png";
+import apple from "../../assets/images/app.png";
+import google from "../../assets/images/play.png";
+---
+
+<!-- Start -->
+<section
+    class="relative md:py-24 py-16 bg-slate-50/50 dark:bg-slate-800/20"
+    id="download"
+>
+    <div class="container relative">
+        <div class="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
+            <div class="lg:col-span-5 md:col-span-6">
+                <div
+                    class="pt-6 px-6 rounded-2xl bg-pink-500/5 dark:bg-pink-500/10 shadow shadow-pink-500/20"
+                >
+                    <img src={matchImg.src} alt="Match today!" />
+                </div>
+            </div><!--end grid-->
+
+            <div class="lg:col-span-7 md:col-span-6">
+                <div class="lg:ms-10">
+                    <h6
+                        class="text-pink-500 uppercase text-sm font-bold tracking-wider mb-3"
+                    >
+                        Download Now!
+                    </h6>
+                    <h4
+                        class="mb-6 md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
+                    >
+                        Available for your <br /> Smartphones!
+                    </h4>
+                    <p class="text-slate-400 max-w-xl mb-0">
+                        Join us at Unicorn Landing! Make some connections and
+                        have a little fun.
+                    </p>
+                    <div class="my-6">
+                        <a
+                            href="https://apps.apple.com/us/app/unicorn-landing/id1623833827"
+                            ><img
+                                src={apple.src}
+                                class="h-12 inline-block m-1"
+                                alt="app store link"
+                            /></a
+                        >
+                        <a
+                            href="https://play.google.com/store/apps/details?id=net.unicornlanding.app&pli=1"
+                            ><img
+                                src={google.src}
+                                class="h-12 inline-block m-1"
+                                alt="play store link"
+                            /></a
+                        >
+                    </div>
+                </div>
+            </div>
+        </div><!--end gird-->
+    </div><!--end container-->
+</section><!--end section-->
+<!-- End -->

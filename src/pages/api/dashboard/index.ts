@@ -44,7 +44,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 
   const adminClient = createAdminClient();
 
-  // Get current week profile stats
   const {
     data: newProfiles,
     error: newProfilesError,
@@ -55,7 +54,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     .gte("created_at", beginningOfCurrentWeekISO)
     .limit(5);
 
-  // Get previous week profile stats
   const { error: lastWeekProfilesError, count: lastWeekProfilesCount } =
     await adminClient
       .from("profiles")
@@ -66,7 +64,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       .gte("created_at", beginningOfPreviousWeekISO)
       .lte("created_at", endOfPreviousWeekISO);
 
-  // Get current week PENDING verification requests
   const {
     data: newVerificationRequests,
     error: newVerificationRequestsError,
@@ -78,7 +75,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     .order("created_at", { ascending: false })
     .limit(5);
 
-  // Get previous week PENDING verification requests
   const {
     error: lastWeekVerificationRequestsError,
     count: lastWeekVerificationRequestsCount,
@@ -91,18 +87,61 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     .gte("created_at", beginningOfPreviousWeekISO)
     .lte("created_at", endOfPreviousWeekISO);
 
+  const {
+    data: newReportedUsers,
+    error: newReportedUsersError,
+    count: newReportedUsersCount,
+  } = await adminClient
+    .from("user_reports")
+    .select("id, profile_id, created_at", {
+      count: "exact",
+      head: false,
+    })
+    .gte("created_at", beginningOfCurrentWeekISO)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  const {
+    error: lastWeekReportedUsersError,
+    count: lastWeekReportedUsersCount,
+  } = await adminClient
+    .from("user_reports")
+    .select("id, profile_id, created_at", {
+      count: "exact",
+      head: true,
+    })
+    .gte("created_at", beginningOfPreviousWeekISO)
+    .lte("created_at", endOfPreviousWeekISO);
+
+  const { data: upcomingEvents, error: upcomingEventsError } = await adminClient
+    .from("events")
+    .select(
+      `
+      *,
+      clubs(*)
+      `,
+    )
+    .order("date", { ascending: true })
+    .limit(5);
+
   // Check for errors
   if (
     newProfilesError ||
     lastWeekProfilesError ||
     newVerificationRequestsError ||
-    lastWeekVerificationRequestsError
+    lastWeekVerificationRequestsError ||
+    newReportedUsersError ||
+    lastWeekReportedUsersError ||
+    upcomingEventsError
   ) {
     console.log({
       newProfilesError,
       lastWeekProfilesError,
       newVerificationRequestsError,
       lastWeekVerificationRequestsError,
+      newReportedUsersError,
+      lastWeekReportedUsersError,
+      upcomingEventsError,
     });
 
     return new Response(
@@ -112,7 +151,10 @@ export const GET: APIRoute = async ({ request, cookies }) => {
           newProfilesError?.message ||
           lastWeekProfilesError?.message ||
           newVerificationRequestsError?.message ||
-          lastWeekVerificationRequestsError?.message,
+          lastWeekVerificationRequestsError?.message ||
+          newReportedUsersError?.message ||
+          lastWeekReportedUsersError?.message ||
+          upcomingEventsError?.message,
       }),
       {
         headers: { "Content-Type": "application/json" },
@@ -148,6 +190,16 @@ export const GET: APIRoute = async ({ request, cookies }) => {
           count: lastWeekVerificationRequestsCount,
         },
       },
+      reportedUsers: {
+        currentWeek: {
+          count: newReportedUsersCount,
+          data: newReportedUsers,
+        },
+        previousWeek: {
+          count: lastWeekReportedUsersCount,
+        },
+      },
+      upcomingEvents,
     }),
     {
       headers: { "Content-Type": "application/json" },

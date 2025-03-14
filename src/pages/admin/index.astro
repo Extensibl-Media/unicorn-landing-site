@@ -10,6 +10,13 @@ import {
 } from "lucide-react";
 import { calculateKpiChange } from "@/lib/utils";
 import { PUBLIC_SITE_URL } from "astro:env/client";
+import type { Database } from "@/types/supabase";
+import { Button } from "@/components/ui/button";
+import { EventsTable } from "@/components/admin/events-table";
+
+type EventWithClub = Database["public"]["Tables"]["events"]["Row"] & {
+    club: Database["public"]["Tables"]["clubs"]["Row"];
+};
 
 export interface DashboardApiResponse {
     success: boolean;
@@ -45,6 +52,21 @@ export interface DashboardApiResponse {
             count: number;
         };
     };
+    reportedUsers: {
+        currentWeek: {
+            count: number;
+            data: Array<{
+                id: string;
+                user_id: string;
+                created_at: string;
+                status: string;
+            }>;
+        };
+        previousWeek: {
+            count: number;
+        };
+    };
+    upcomingEvents: EventWithClub[];
     error?: string; // For error responses
 }
 
@@ -74,6 +96,14 @@ const newVerificationStats = calculateKpiChange(
     },
 );
 
+const newReportedUserStats = calculateKpiChange(
+    dashboardData.reportedUsers.currentWeek.count,
+    dashboardData.reportedUsers.previousWeek.count,
+    {
+        formatValue: (val: number) => val.toLocaleString(),
+    },
+);
+
 const stats = [
     {
         title: "New Users",
@@ -91,9 +121,9 @@ const stats = [
     },
     {
         title: "Reported Users",
-        value: "$12,543",
-        change: 2.3,
-        isPositive: false,
+        value: newReportedUserStats.value,
+        change: newReportedUserStats.change,
+        isPositive: newReportedUserStats.isPositive,
         icon: TriangleAlert,
     },
 ];
@@ -102,4 +132,18 @@ const stats = [
 <AdminLayout title="Dashboard">
     <!-- KPI Cards -->
     <KPICards stats={stats} />
+    <div class="mt-8 space-y-4">
+        <div class="flex justify-between flex-wrap gap-2 mb-4">
+            <h2 class="text-xl font-semibold">Upcoming Events</h2>
+            <a
+                class="bg-secondary text-secondary-foreground"
+                href="/admin/events/">See All Events</a
+            >
+        </div>
+        <EventsTable
+            client:load
+            truncated
+            events={dashboardData.upcomingEvents}
+        />
+    </div>
 </AdminLayout>
