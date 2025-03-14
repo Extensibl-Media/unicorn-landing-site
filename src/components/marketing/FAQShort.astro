@@ -1,0 +1,418 @@
+---
+import { Download, Play } from "lucide-astro";
+import likeMe from "../../assets/images/LikeMe.png";
+---
+
+<!-- Start -->
+<section class="relative overflow-hidden md:py-24 py-16" id="faqs">
+    <div class="container relative">
+        <div class="grid lg:grid-cols-2 grid-cols-1 items-center gap-6">
+            <div class="relative order-1 lg:order-2">
+                <div class="relative">
+                    <img
+                        src={likeMe.src}
+                        class="mx-auto max-w-xs lg:max-w-sm"
+                        alt="Like Me Game preview"
+                    />
+                </div>
+                <div
+                    class="overflow-hidden absolute md:size-[500px] size-[400px] bg-gradient-to-tr to-pink-500-500/20 via-pink-500/70 from-pink-500 bottom-1/2 translate-y-1/2 md:end-0 end-1/2 md:translate-x-0 translate-x-1/2 -z-1 shadow-md shadow-pink-500/10 rounded-full"
+                >
+                </div>
+
+                <div
+                    class="absolute bottom-28 md:start-0 -start-5 p-4 rounded-lg shadow-md dark:shadow-gray-800 bg-white dark:bg-slate-900 w-52 m-3"
+                >
+                    <div class="flex items-center">
+                        <div
+                            class="flex items-center justify-center size-[65px] bg-pink-500/5 text-pink-500 text-center rounded-full me-3"
+                        >
+                            <Download />
+                        </div>
+                        <div class="flex-1">
+                            <h6 class="text-slate-400">Total Users</h6>
+                            <p class="text-xl font-bold">
+                                <span class="counter-value" data-target="30000"
+                                    >30000+</span
+                                >
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:me-8 order-2 lg:order-1">
+                <h6
+                    class="text-pink-500 uppercase text-sm font-bold tracking-wider mb-3"
+                >
+                    FAQs
+                </h6>
+                <h4
+                    class="mb-6 md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
+                >
+                    Have Questions? Look Here
+                </h4>
+                <p class="text-slate-400 max-w-xl mx-auto">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua
+                </p>
+
+                <div
+                    id="accordion-collapseone"
+                    data-accordion="collapse"
+                    class="mt-8"
+                >
+                    <div
+                        class="relative shadow dark:shadow-gray-800 rounded-md overflow-hidden"
+                    >
+                        <h2
+                            class="font-semibold"
+                            id="accordion-collapse-heading-1"
+                        >
+                            <button
+                                type="button"
+                                class="flex justify-between items-center p-5 w-full font-medium text-start"
+                                data-accordion-target="#accordion-collapse-body-1"
+                                aria-expanded="true"
+                                aria-controls="accordion-collapse-body-1"
+                            >
+                                <span>Question 1</span>
+                                <svg
+                                    data-accordion-icon
+                                    class="size-4 rotate-180 shrink-0"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </h2>
+                        <div
+                            id="accordion-collapse-body-1"
+                            class="hidden"
+                            aria-labelledby="accordion-collapse-heading-1"
+                        >
+                            <div class="p-5">
+                                <p class="text-slate-400 dark:text-gray-400">
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="relative shadow dark:shadow-gray-800 rounded-md overflow-hidden mt-4"
+                    >
+                        <h2
+                            class="text-lg font-semibold"
+                            id="accordion-collapse-heading-2"
+                        >
+                            <button
+                                type="button"
+                                class="flex justify-between items-center p-5 w-full font-medium text-start"
+                                data-accordion-target="#accordion-collapse-body-2"
+                                aria-expanded="false"
+                                aria-controls="accordion-collapse-body-2"
+                            >
+                                <span>Question 2</span>
+                                <svg
+                                    data-accordion-icon
+                                    class="size-4 shrink-0"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </h2>
+                        <div
+                            id="accordion-collapse-body-2"
+                            class="hidden"
+                            aria-labelledby="accordion-collapse-heading-2"
+                        >
+                            <div class="p-5">
+                                <p class="text-slate-400 dark:text-gray-400">
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="relative shadow dark:shadow-gray-800 rounded-md overflow-hidden mt-4"
+                    >
+                        <h2
+                            class="text-lg font-semibold"
+                            id="accordion-collapse-heading-3"
+                        >
+                            <button
+                                type="button"
+                                class="flex justify-between items-center p-5 w-full font-medium text-start"
+                                data-accordion-target="#accordion-collapse-body-3"
+                                aria-expanded="false"
+                                aria-controls="accordion-collapse-body-3"
+                            >
+                                <span>Question 3</span>
+                                <svg
+                                    data-accordion-icon
+                                    class="size-4 shrink-0"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </h2>
+                        <div
+                            id="accordion-collapse-body-3"
+                            class="hidden"
+                            aria-labelledby="accordion-collapse-heading-3"
+                        >
+                            <div class="p-5">
+                                <p class="text-slate-400 dark:text-gray-400">
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="relative shadow dark:shadow-gray-800 rounded-md overflow-hidden mt-4"
+                    >
+                        <h2
+                            class="text-lg font-semibold"
+                            id="accordion-collapse-heading-4"
+                        >
+                            <button
+                                type="button"
+                                class="flex justify-between items-center p-5 w-full font-medium text-start"
+                                data-accordion-target="#accordion-collapse-body-4"
+                                aria-expanded="false"
+                                aria-controls="accordion-collapse-body-4"
+                            >
+                                <span>Question 4</span>
+                                <svg
+                                    data-accordion-icon
+                                    class="size-4 shrink-0"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </h2>
+                        <div
+                            id="accordion-collapse-body-4"
+                            class="hidden"
+                            aria-labelledby="accordion-collapse-heading-4"
+                        >
+                            <div class="p-5">
+                                <p class="text-slate-400 dark:text-gray-400">
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--end grid-->
+    </div><!--end container-->
+</section><!--end section-->
+<!-- End Section-->
+
+<script>
+    try {
+        const Default = {
+            alwaysOpen: false,
+            activeClasses: "bg-slate-50/50 text-pink-500",
+            inactiveClasses: "text-slate-900",
+            onOpen: () => {},
+            onClose: () => {},
+            onToggle: () => {},
+        };
+
+        class Accordion {
+            _items: any[];
+            _options: any;
+            constructor(items: any[] = [], options = {}) {
+                this._items = items;
+                this._options = { ...Default, ...options };
+                this._init();
+            }
+
+            _init() {
+                if (this._items.length) {
+                    // show accordion item based on click
+                    this._items.map((item) => {
+                        if (item.active) {
+                            this.open(item.id);
+                        }
+
+                        item.triggerEl.addEventListener("click", () => {
+                            this.toggle(item.id);
+                        });
+                    });
+                }
+            }
+
+            getItem(id) {
+                return this._items.filter((item) => item.id === id)[0];
+            }
+
+            open(id) {
+                const item = this.getItem(id);
+
+                // don't hide other accordions if always open
+                if (!this._options.alwaysOpen) {
+                    this._items.map((i) => {
+                        if (i !== item) {
+                            i.triggerEl.classList.remove(
+                                ...this._options.activeClasses.split(" "),
+                            );
+                            i.triggerEl.classList.add(
+                                ...this._options.inactiveClasses.split(" "),
+                            );
+                            i.targetEl.classList.add("hidden");
+                            i.triggerEl.setAttribute("aria-expanded", false);
+                            i.active = false;
+
+                            // rotate icon if set
+                            if (i.iconEl) {
+                                i.iconEl.classList.remove("rotate-180");
+                            }
+                        }
+                    });
+                }
+
+                // show active item
+                item.triggerEl.classList.add(
+                    ...this._options.activeClasses.split(" "),
+                );
+                item.triggerEl.classList.remove(
+                    ...this._options.inactiveClasses.split(" "),
+                );
+                item.triggerEl.setAttribute("aria-expanded", true);
+                item.targetEl.classList.remove("hidden");
+                item.active = true;
+
+                // rotate icon if set
+                if (item.iconEl) {
+                    item.iconEl.classList.add("rotate-180");
+                }
+
+                // callback function
+                this._options.onOpen(this, item);
+            }
+
+            toggle(id) {
+                const item = this.getItem(id);
+
+                if (item.active) {
+                    this.close(id);
+                } else {
+                    this.open(id);
+                }
+
+                // callback function
+                this._options.onToggle(this, item);
+            }
+
+            close(id) {
+                const item = this.getItem(id);
+
+                item.triggerEl.classList.remove(
+                    ...this._options.activeClasses.split(" "),
+                );
+                item.triggerEl.classList.add(
+                    ...this._options.inactiveClasses.split(" "),
+                );
+                item.targetEl.classList.add("hidden");
+                item.triggerEl.setAttribute("aria-expanded", false);
+                item.active = false;
+
+                // rotate icon if set
+                if (item.iconEl) {
+                    item.iconEl.classList.remove("rotate-180");
+                }
+
+                // callback function
+                this._options.onClose(this, item);
+            }
+        }
+
+        window.Accordion = Accordion;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document
+                .querySelectorAll("[data-accordion]")
+                .forEach((accordionEl) => {
+                    const alwaysOpen =
+                        accordionEl.getAttribute("data-accordion");
+                    const activeClasses = accordionEl.getAttribute(
+                        "data-active-classes",
+                    );
+                    const inactiveClasses = accordionEl.getAttribute(
+                        "data-inactive-classes",
+                    );
+
+                    const items: any[] = [];
+                    accordionEl
+                        .querySelectorAll("[data-accordion-target]")
+                        .forEach((el) => {
+                            const item = {
+                                id: el.getAttribute("data-accordion-target"),
+                                triggerEl: el,
+                                targetEl: document.querySelector(
+                                    el.getAttribute("data-accordion-target"),
+                                ),
+                                iconEl: el.querySelector(
+                                    "[data-accordion-icon]",
+                                ),
+                                active:
+                                    el.getAttribute("aria-expanded") === "true"
+                                        ? true
+                                        : false,
+                            };
+                            items.push(item);
+                        });
+
+                    new Accordion(items, {
+                        alwaysOpen: alwaysOpen === "open" ? true : false,
+                        activeClasses: activeClasses
+                            ? activeClasses
+                            : Default.activeClasses,
+                        inactiveClasses: inactiveClasses
+                            ? inactiveClasses
+                            : Default.inactiveClasses,
+                    });
+                });
+        });
+    } catch (error) {
+        console.error(error);
+    }
+</script>
