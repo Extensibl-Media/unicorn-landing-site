@@ -151,6 +151,23 @@ export function VerificationRequestsTable({
         throw new Error(error.message || "Failed to verify user");
       }
 
+      const notificationResponse = await fetch("/api/send-notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: request.user_id,
+          title: `Unicorn Landing Verification Approval`,
+          body: `Your verification status has been approved!.`,
+        }),
+      });
+
+      if (!notificationResponse.ok) {
+        const error = await notificationResponse.json();
+        console.log(error);
+      }
+
       // Update local state
       setCurrentRequests((prevRequests) =>
         prevRequests.map((req) =>
@@ -198,6 +215,23 @@ export function VerificationRequestsTable({
           error.message || "Failed to update verification status",
         );
       }
+
+      // const notificationResponse = await fetch("/api/send-notification", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     user_id: request.user_id,
+      //     title: `Unicorn Landing Verification Denial`,
+      //     body: `Your verification status has been denied. If you feel this was in error please reach out to support`,
+      //   }),
+      // });
+
+      // if (!notificationResponse.ok) {
+      //   const error = await notificationResponse.json();
+      //   console.log(error);
+      // }
 
       // Update local state
       setCurrentRequests((prevRequests) =>
