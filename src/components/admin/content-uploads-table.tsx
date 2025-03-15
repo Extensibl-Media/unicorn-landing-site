@@ -67,8 +67,8 @@ export interface UserUpload {
 
 interface UserUploadsTableProps {
   uploads: UserUpload[];
-  currentPage: number;
-  totalPages: number;
+  // currentPage: number;
+  // totalPages: number;
   totalCount: number;
   uploadType: string;
   searchQuery: string;
@@ -76,8 +76,8 @@ interface UserUploadsTableProps {
 
 export function UserUploadsTable({
   uploads,
-  currentPage,
-  totalPages,
+  // currentPage,
+  // totalPages,
   totalCount,
   uploadType,
   searchQuery,
@@ -123,11 +123,11 @@ export function UserUploadsTable({
       newSearch ? params.set("search", newSearch) : params.delete("search");
     }
 
-    if (newPage !== undefined) {
-      newPage > 0
-        ? params.set("page", newPage.toString())
-        : params.delete("page");
-    }
+    // if (newPage !== undefined) {
+    //   newPage > 0
+    //     ? params.set("page", newPage.toString())
+    //     : params.delete("page");
+    // }
 
     window.location.href = `${window.location.pathname}?${params.toString()}`;
   };
@@ -387,10 +387,10 @@ export function UserUploadsTable({
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+          {/* <p className="text-sm text-muted-foreground">
             Showing {currentUploads.length} of {totalCount} uploads
-          </p>
-          <div className="flex gap-2">
+          </p> */}
+          {/* <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -411,7 +411,7 @@ export function UserUploadsTable({
             >
               Next
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
 

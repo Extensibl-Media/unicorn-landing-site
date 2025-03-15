@@ -58,6 +58,8 @@ export function LegacyMigrationForm({ migrationData }: Props) {
         },
       });
 
+      console.log({ authData });
+
       if (authError) {
         console.error("Error creating auth user", {
           error: authError,
