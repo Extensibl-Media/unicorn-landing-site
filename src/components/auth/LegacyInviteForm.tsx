@@ -58,8 +58,6 @@ export function LegacyMigrationForm({ migrationData }: Props) {
         },
       });
 
-      console.log({ authData });
-
       if (authError) {
         console.error("Error creating auth user", {
           error: authError,
@@ -68,26 +66,26 @@ export function LegacyMigrationForm({ migrationData }: Props) {
         throw authError;
       }
 
-      // Update migration status
-      const { data: migration, error: migrationError } = await supabase
-        .from("legacy_migrations")
-        .update({
-          status: "completed",
-          new_user_id: authData.user?.id,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("migration_token", migrationData.migration_token);
+      if (authData.user) {
+        // Update migration status
+        const { data: migration, error: migrationError } = await supabase
+          .from("legacy_migrations")
+          .update({
+            status: "completed",
+            new_user_id: authData.user?.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("migration_token", migrationData.migration_token);
 
-      if (migrationError) {
-        console.error("Error handling migration", {
-          error: migrationError,
-          migrationData,
-          authData,
-        });
-        throw migrationError;
-      }
+        if (migrationError) {
+          console.error("Error handling migration", {
+            error: migrationError,
+            migrationData,
+            authData,
+          });
+          throw migrationError;
+        }
 
-      if (migration && authData.user) {
         const { data, error: profileError } = await supabase
           .from("profiles")
           .update({
@@ -99,8 +97,6 @@ export function LegacyMigrationForm({ migrationData }: Props) {
           .eq("id", authData.user.id)
           .select();
 
-        console.log({ profile: data });
-
         if (profileError) {
           console.error("Error updating profile after migration", {
             error: profileError,
@@ -109,6 +105,7 @@ export function LegacyMigrationForm({ migrationData }: Props) {
           });
           throw profileError;
         }
+        console.log({ profile: data, migration, authData });
         await supabase.auth.signOut();
       }
 
