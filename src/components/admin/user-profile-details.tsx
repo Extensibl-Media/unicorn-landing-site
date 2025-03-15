@@ -104,6 +104,23 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
         throw new Error(error.message || "Failed to update approval status");
       }
 
+      const notificationResponse = await fetch("/api/send-notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: activeProfile.id,
+          title: `Unicorn Landing Account Approval`,
+          body: `Your profile has been ${status ? "approved" : "unapproved"}.`,
+        }),
+      });
+
+      if (!notificationResponse.ok) {
+        const error = await notificationResponse.json();
+        console.log(error);
+      }
+
       setActiveProfile({
         ...activeProfile,
         approved: status,

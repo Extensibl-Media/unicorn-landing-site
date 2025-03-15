@@ -104,11 +104,11 @@ export function LegacyMigrationForm({ migrationData }: Props) {
           });
           throw profileError;
         }
+        await supabase.auth.signOut();
       }
 
       // Show success state
       setSuccess(true);
-      await supabase.auth.signOut();
     } catch (err) {
       console.error(err);
       setError(`${err}`);
