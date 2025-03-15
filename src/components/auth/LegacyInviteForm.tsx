@@ -88,7 +88,7 @@ export function LegacyMigrationForm({ migrationData }: Props) {
       }
 
       if (migration && authData.user) {
-        const { error: profileError } = await supabase
+        const { data, error: profileError } = await supabase
           .from("profiles")
           .update({
             username: migrationData.legacy_user.nickname,
@@ -96,7 +96,10 @@ export function LegacyMigrationForm({ migrationData }: Props) {
             longitude: migrationData.legacy_user.lon,
             approved: true,
           })
-          .eq("id", authData.user.id);
+          .eq("id", authData.user.id)
+          .select();
+
+        console.log({ profile: data });
 
         if (profileError) {
           console.error("Error updating profile after migration", {
