@@ -29,6 +29,7 @@ interface EventsTableProps {
   currentPage: number;
   totalPages: number;
   searchQuery: string;
+  truncated?: boolean;
 }
 export function EventsTable({
   events,
@@ -36,6 +37,7 @@ export function EventsTable({
   currentPage,
   totalPages,
   searchQuery,
+  truncated,
 }: EventsTableProps) {
   const [search, setSearch] = useState(searchQuery);
   const updateSearchParams = (newSearch?: string, newPage?: number) => {
@@ -71,17 +73,19 @@ export function EventsTable({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search clubs..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-8"
-          />
+      {!truncated && (
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search clubs..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="border rounded-md">
         <Table>
@@ -158,29 +162,31 @@ export function EventsTable({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Showing {events.length} of {totalCount} events
-        </p>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 0}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages - 1}
-          >
-            Next
-          </Button>
+      {!truncated && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {events.length} of {totalCount} events
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 0}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages - 1}
+            >
+              Next
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

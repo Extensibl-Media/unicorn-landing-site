@@ -1,8 +1,8 @@
 ---
 import "@/styles/globals.css";
 import Navbar from "@/components/marketing/navbar.astro";
+import splash from "../assets/images/splash.svg";
 import Footer from "@/components/marketing/Footer.astro";
-// import splash from "../assets/images/splash.svg";
 ---
 
 <!doctype html>
@@ -44,7 +44,11 @@ import Footer from "@/components/marketing/Footer.astro";
             </div>
         </div> -->
         <Navbar />
-        <slot />
+        <div
+            class="py-24 container prose-sm lg:prose-md prose-a:text-pink-400 prose-a:underline prose-li:list-disc"
+        >
+            <slot />
+        </div>
         <Footer />
     </body>
 </html>
