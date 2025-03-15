@@ -58,7 +58,13 @@ export function LegacyMigrationForm({ migrationData }: Props) {
         },
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error("Error creating auth user", {
+          error: authError,
+          migrationData,
+        });
+        throw authError;
+      }
 
       // Update migration status
       const { data: migration, error: migrationError } = await supabase
@@ -70,7 +76,14 @@ export function LegacyMigrationForm({ migrationData }: Props) {
         })
         .eq("migration_token", migrationData.migration_token);
 
-      if (migrationError) throw migrationError;
+      if (migrationError) {
+        console.error("Error handling migration", {
+          error: migrationError,
+          migrationData,
+          authData,
+        });
+        throw migrationError;
+      }
 
       if (migration && authData.user) {
         const { error: profileError } = await supabase
@@ -83,7 +96,14 @@ export function LegacyMigrationForm({ migrationData }: Props) {
           })
           .eq("id", authData.user.id);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Error updating profile after migration", {
+            error: profileError,
+            migrationData,
+            authData,
+          });
+          throw profileError;
+        }
       }
 
       // Show success state

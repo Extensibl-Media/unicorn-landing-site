@@ -44,7 +44,7 @@ const {
     data: profiles,
     error,
     count,
-} = await query.range(from, to).order("updated_at", { ascending: true });
+} = await query.range(from, to).order("updated_at", { ascending: false });
 
 if (error) {
     console.error("Error fetching user uploads:", error);

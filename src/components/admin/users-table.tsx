@@ -75,6 +75,27 @@ export function UsersTable({
     return () => clearTimeout(timeoutId);
   }, [search]);
 
+  const handleApprovalChange = async (status: boolean, id: string) => {
+    try {
+      const response = await fetch(`/api/users/${id}/approve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ approved: status }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update approval status");
+      }
+
+      window.location.reload();
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : "An error occurred");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -146,7 +167,9 @@ export function UsersTable({
                       <DropdownMenuContent align="end">
                         {!profile.approved && (
                           <DropdownMenuItem
-                            onClick={() => console.log("approve user")}
+                            onClick={() =>
+                              handleApprovalChange(true, profile.id)
+                            }
                           >
                             <SquareCheckBig className="mr-2 h-4 w-4" />
                             Approve
