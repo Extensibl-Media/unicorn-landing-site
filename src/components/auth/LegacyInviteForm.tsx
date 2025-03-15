@@ -107,10 +107,9 @@ export function LegacyMigrationForm({ migrationData }: Props) {
         }
         console.log({ profile: data, migration, authData });
         await supabase.auth.signOut();
-      }
 
-      // Show success state
-      setSuccess(true);
+        setSuccess(true);
+      }
     } catch (err) {
       console.error(err);
       setError(`${err}`);
