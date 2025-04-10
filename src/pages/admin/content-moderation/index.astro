@@ -6,8 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 
 // Get URL params
 const uploadType = Astro.url.searchParams.get("type") || "all"; // all, avatars, profile_uploads
-// const page = parseInt(Astro.url.searchParams.get("page") || "0");
-// const pageSize = 20; // We'll show more per page for images
+const status = Astro.url.searchParams.get("status") || "PENDING"; // all, pending, approved, rejected
+const page = parseInt(Astro.url.searchParams.get("page") || "0");
+const pageSize = 20; // We'll show more per page for images
 const searchQuery = Astro.url.searchParams.get("search") || "";
 
 // Create Supabase client
@@ -17,91 +18,35 @@ const supabase = createClient({
 });
 
 // Calculate query range
-// const from = page * pageSize;
-// const to = from + pageSize - 1;
+const from = page * pageSize;
+const to = from + pageSize - 1;
 
-// Base query to get profiles with uploads
-let query = supabase
-    .from("profiles")
-    .select("id, username, avatar_url, user_uploads", { count: "exact" });
+let newQuery = supabase.from("content_moderation_images").select(
+    `
+      *,
+      profile:profiles!inner(id, username, email)
+      `,
+    { count: "exact" },
+);
 
-// Apply type filter
 if (uploadType === "avatars") {
-    query = query.not("avatar_url", "is", null);
+    newQuery = newQuery.eq("image_type", "AVATAR");
 } else if (uploadType === "profile_uploads") {
-    query = query.not("user_uploads", "is", null);
+    newQuery = newQuery.eq("image_type", "PROFILE_IMAGE");
 }
 
-// Apply search if provided
-if (searchQuery) {
-    query = query.or(
-        `username.ilike.%${searchQuery}%, email.ilike.%${searchQuery}%`,
-    );
-}
-
-// Execute the query with pagination
 const {
-    data: profiles,
-    error,
-    count,
-} = await query.order("updated_at", { ascending: true });
+    data,
+    error: uploadsError,
+    count: newCount,
+} = await newQuery.eq("status", status).limit(pageSize).range(from, to);
 
-if (error) {
-    console.error("Error fetching user uploads:", error);
+if (uploadsError) {
+    console.error("Error fetching uploads:", uploadsError);
 }
-
-// Process the data to fit our UI needs
-const uploads = [];
-
-// Function to extract file type from URL
-const getFileTypeFromUrl = (url) => {
-    const extension = url.split(".").pop().toLowerCase();
-    return ["jpg", "jpeg", "png", "gif", "webp"].includes(extension)
-        ? "image"
-        : ["mp4", "webm", "mov"].includes(extension)
-          ? "video"
-          : "other";
-};
-
-// Process avatar uploads
-if (uploadType === "all" || uploadType === "avatars") {
-    profiles?.forEach((profile) => {
-        if (profile.avatar_url) {
-            uploads.push({
-                id: `avatar-${profile.id}`,
-                userId: profile.id,
-                username: profile.username,
-                url: profile.avatar_url,
-                type: "avatar",
-                fileType: getFileTypeFromUrl(profile.avatar_url),
-                timestamp: null, // We don't have timestamp for avatars in this query
-            });
-        }
-    });
-}
-
-// Process profile uploads
-if (uploadType === "all" || uploadType === "profile_uploads") {
-    profiles?.forEach((profile) => {
-        if (profile.user_uploads && Array.isArray(profile.user_uploads)) {
-            profile.user_uploads.forEach((url, index) => {
-                uploads.push({
-                    id: `upload-${profile.id}-${index}`,
-                    userId: profile.id,
-                    username: profile.username,
-                    url: url,
-                    type: "profile_upload",
-                    fileType: getFileTypeFromUrl(url),
-                    timestamp: null, // We don't have timestamp for uploads in this query
-                });
-            });
-        }
-    });
-}
-
 // Calculate pagination
-const totalCount = count || 0;
-// const totalPages = Math.ceil(totalCount / pageSize);
+const totalCount = newCount || 0;
+const totalPages = Math.ceil(totalCount / pageSize);
 ---
 
 <AdminLayout title="User Uploads Moderation">
@@ -118,8 +63,10 @@ const totalCount = count || 0;
         </div>
 
         <UserUploadsTable
+            currentPage={page}
+            totalPages={totalPages}
+            images={data}
             client:load
-            uploads={uploads}
             totalCount={totalCount}
             uploadType={uploadType}
             searchQuery={searchQuery}

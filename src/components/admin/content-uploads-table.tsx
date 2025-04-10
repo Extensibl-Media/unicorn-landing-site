@@ -26,6 +26,7 @@ import {
   ImageIcon,
   Film,
   File,
+  Check,
 } from "lucide-react";
 import {
   Dialog,
@@ -65,19 +66,41 @@ export interface UserUpload {
   timestamp: string | null; // Timestamp of upload (may be null)
 }
 
+export interface ContentModerationUpload {
+  id: number;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  image_type: string;
+  status: string;
+  url_string: string;
+  profile: {
+    id: string | null;
+    email: string | null;
+    username: string | null;
+  };
+}
+
 interface UserUploadsTableProps {
+  images: ContentModerationUpload[];
   uploads: UserUpload[];
-  // currentPage: number;
-  // totalPages: number;
+  currentPage: number;
+  totalPages: number;
   totalCount: number;
   uploadType: string;
   searchQuery: string;
 }
 
+const SUCCESS_MAP = {
+  APPROVED: "Image approved successfully",
+  REJECTED: "Image rejected successfully",
+  DELETED: "Image deleted successfully",
+};
+
 export function UserUploadsTable({
-  uploads,
-  // currentPage,
-  // totalPages,
+  images,
+  currentPage,
+  totalPages,
   totalCount,
   uploadType,
   searchQuery,
@@ -85,27 +108,42 @@ export function UserUploadsTable({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [currentUploads, setCurrentUploads] = useState<UserUpload[]>(uploads);
-  const [search, setSearch] = useState(searchQuery);
+  const [moderationImgs, setModerationImgs] =
+    useState<ContentModerationUpload[]>(images);
+  // const [search, setSearch] = useState(searchQuery);
   const [viewImageUrl, setViewImageUrl] = useState<string | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [moderateConfirmId, setModerateConfirmId] = useState<string | null>(
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [moderateConfirmId, setModerateConfirmId] = useState<number | null>(
     null,
   );
+  const [selectedUpload, setSelectedUpload] =
+    useState<ContentModerationUpload | null>(null);
 
   useEffect(() => {
-    setCurrentUploads(uploads);
-  }, [uploads]);
+    setModerationImgs(images);
+  }, [images]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (search !== searchQuery) {
-        updateSearchParams(undefined, search, undefined);
-      }
-    }, 500);
+    setSelectedUpload(
+      moderationImgs.find(
+        (img) => img.id === deleteConfirmId || img.id === moderateConfirmId,
+      ) || null,
+    );
+  }, [deleteConfirmId, moderationImgs]);
 
-    return () => clearTimeout(timeoutId);
-  }, [search]);
+  useEffect(() => {
+    console.log({ selectedUpload });
+  }, [selectedUpload]);
+
+  // useEffect(() => {
+  //   const timeoutId = setTimeout(() => {
+  //     if (search !== searchQuery) {
+  //       updateSearchParams(undefined, search, undefined);
+  //     }
+  //   }, 500);
+
+  //   return () => clearTimeout(timeoutId);
+  // }, [search]);
 
   // Navigation functions
   const updateSearchParams = (
@@ -119,147 +157,178 @@ export function UserUploadsTable({
       newType !== "all" ? params.set("type", newType) : params.delete("type");
     }
 
-    if (newSearch !== undefined) {
-      newSearch ? params.set("search", newSearch) : params.delete("search");
-    }
-
-    // if (newPage !== undefined) {
-    //   newPage > 0
-    //     ? params.set("page", newPage.toString())
-    //     : params.delete("page");
+    // if (newSearch !== undefined) {
+    //   newSearch ? params.set("search", newSearch) : params.delete("search");
     // }
+
+    if (newPage !== undefined) {
+      newPage > 0
+        ? params.set("page", newPage.toString())
+        : params.delete("page");
+    }
 
     window.location.href = `${window.location.pathname}?${params.toString()}`;
   };
 
-  // View image in modal
   const handleViewImage = (url: string) => {
     setViewImageUrl(url);
   };
 
-  // Delete image
-  const handleDeleteImage = async (uploadId: string) => {
+  const handleModerateImage = async (
+    status: string,
+    uploadId: number,
+    imageType: string,
+    url: string,
+    userId: string | null,
+  ) => {
+    if (!userId) {
+      setErrorMessage("User ID is required");
+      return;
+    }
     setIsSubmitting(true);
     setErrorMessage(null);
     setSuccessMessage(null);
+    const upload = moderationImgs.find((u) => u.id === uploadId);
 
     try {
-      // Find the upload details
-      const upload = currentUploads.find((u) => u.id === uploadId);
       if (!upload) {
         throw new Error("Upload not found");
       }
-
-      // Call the appropriate endpoint based on upload type
-      const endpoint =
-        upload.type === "avatar"
-          ? `/api/users/${upload.userId}/avatar/moderate`
-          : `/api/users/${upload.userId}/uploads/delete`;
-
-      const response = await fetch(endpoint, {
-        method: "POST",
+      const response = await fetch(`/api/content-moderation/${uploadId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          url: upload.url,
-          // For profile uploads, we need to identify which one to delete
-          ...(upload.type === "profile_upload" && {
-            index: uploadId.split("-").pop(),
-          }),
-        }),
+        body: JSON.stringify({ status, imageType, url, userId }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to delete upload");
-      }
+      if (!response.ok) throw new Error("Something went wrong");
 
-      // Remove from local state
-      setCurrentUploads((prevUploads) =>
-        prevUploads.filter((u) => u.id !== uploadId),
-      );
-
-      setSuccessMessage(
-        `${upload.type === "avatar" ? "Avatar" : "Upload"} has been deleted`,
-      );
+      setSuccessMessage(SUCCESS_MAP[status as keyof typeof SUCCESS_MAP]);
+      setModerationImgs((prevUploads) => {
+        if (prevUploads?.length <= 1) {
+          window.location.reload();
+        }
+        return prevUploads.filter((u) => u.id !== uploadId);
+      });
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsSubmitting(false);
-      setDeleteConfirmId(null);
     }
   };
 
-  // Replace with moderation image
-  const handleModerateImage = async (uploadId: string) => {
-    setIsSubmitting(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
+  // // Delete image
+  // const handleDeleteImage = async (uploadId: string) => {
+  //   setIsSubmitting(true);
+  //   setErrorMessage(null);
+  //   setSuccessMessage(null);
 
-    try {
-      // Find the upload details
-      const upload = currentUploads.find((u) => u.id === uploadId);
-      if (!upload) {
-        throw new Error("Upload not found");
-      }
+  //   try {
+  //     // Find the upload details
+  //     const upload = currentUploads.find((u) => u.id === uploadId);
+  //     if (!upload) {
+  //       throw new Error("Upload not found");
+  //     }
 
-      // Call the appropriate endpoint based on upload type
-      const endpoint =
-        upload.type === "avatar"
-          ? `/api/users/${upload.userId}/avatar/moderate`
-          : `/api/users/${upload.userId}/uploads/moderate`;
+  //     // Call the appropriate endpoint based on upload type
+  //     const endpoint =
+  //       upload.type === "avatar"
+  //         ? `/api/users/${upload.userId}/avatar/moderate`
+  //         : `/api/users/${upload.userId}/uploads/delete`;
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: upload.url,
-          // For profile uploads, we need to identify which one to moderate
-          ...(upload.type === "profile_upload" && {
-            index: uploadId.split("-").pop(),
-          }),
-        }),
-      });
+  //     const response = await fetch(endpoint, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         url: upload.url,
+  //         // For profile uploads, we need to identify which one to delete
+  //         ...(upload.type === "profile_upload" && {
+  //           index: uploadId.split("-").pop(),
+  //         }),
+  //       }),
+  //     });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to moderate upload");
-      }
+  //     if (!response.ok) {
+  //       const error = await response.json();
+  //       throw new Error(error.message || "Failed to delete upload");
+  //     }
 
-      // Update the URL in local state to the moderation image
-      const moderationImageUrl = MODERATION_IMAGE_URL; // Your moderation image path
+  //     // Remove from local state
+  //     setCurrentUploads((prevUploads) =>
+  //       prevUploads.filter((u) => u.id !== uploadId),
+  //     );
 
-      setCurrentUploads((prevUploads) =>
-        prevUploads.map((u) =>
-          u.id === uploadId ? { ...u, url: moderationImageUrl } : u,
-        ),
-      );
+  //     setSuccessMessage(
+  //       `${upload.type === "avatar" ? "Avatar" : "Upload"} has been deleted`,
+  //     );
+  //   } catch (err) {
+  //     setErrorMessage(err instanceof Error ? err.message : "An error occurred");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //     setDeleteConfirmId(null);
+  //   }
+  // };
 
-      setSuccessMessage(
-        `${upload.type === "avatar" ? "Avatar" : "Upload"} has been moderated`,
-      );
-    } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsSubmitting(false);
-      setModerateConfirmId(null);
-    }
-  };
+  // // Replace with moderation image
+  // const handleModerateImage = async (uploadId: string) => {
+  //   setIsSubmitting(true);
+  //   setErrorMessage(null);
+  //   setSuccessMessage(null);
 
-  // Get file type icon
-  const getFileTypeIcon = (fileType: string) => {
-    switch (fileType) {
-      case "image":
-        return <ImageIcon className="h-4 w-4 text-blue-500" />;
-      case "video":
-        return <Film className="h-4 w-4 text-purple-500" />;
-      default:
-        return <File className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  //   try {
+  //     // Find the upload details
+  //     const upload = currentUploads.find((u) => u.id === uploadId);
+  //     if (!upload) {
+  //       throw new Error("Upload not found");
+  //     }
+
+  //     // Call the appropriate endpoint based on upload type
+  //     const endpoint =
+  //       upload.type === "avatar"
+  //         ? `/api/users/${upload.userId}/avatar/moderate`
+  //         : `/api/users/${upload.userId}/uploads/moderate`;
+
+  //     const response = await fetch(endpoint, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         url: upload.url,
+  //         // For profile uploads, we need to identify which one to moderate
+  //         ...(upload.type === "profile_upload" && {
+  //           index: uploadId.split("-").pop(),
+  //         }),
+  //       }),
+  //     });
+
+  //     if (!response.ok) {
+  //       const error = await response.json();
+  //       throw new Error(error.message || "Failed to moderate upload");
+  //     }
+
+  //     // Update the URL in local state to the moderation image
+  //     const moderationImageUrl = MODERATION_IMAGE_URL; // Your moderation image path
+
+  //     setCurrentUploads((prevUploads) =>
+  //       prevUploads.map((u) =>
+  //         u.id === uploadId ? { ...u, url: moderationImageUrl } : u,
+  //       ),
+  //     );
+
+  //     setSuccessMessage(
+  //       `${upload.type === "avatar" ? "Avatar" : "Upload"} has been moderated`,
+  //     );
+  //   } catch (err) {
+  //     setErrorMessage(err instanceof Error ? err.message : "An error occurred");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //     setModerateConfirmId(null);
+  //   }
+  // };
 
   return (
     <>
@@ -278,7 +347,7 @@ export function UserUploadsTable({
 
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
+          {/* <div className="relative flex-1">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by username..."
@@ -286,7 +355,7 @@ export function UserUploadsTable({
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
             />
-          </div>
+          </div> */}
           <Select
             value={uploadType}
             onValueChange={(value) => updateSearchParams(value, undefined, 0)}
@@ -305,51 +374,130 @@ export function UserUploadsTable({
         </div>
 
         {/* Image Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {currentUploads.length === 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {!moderationImgs || moderationImgs?.length === 0 ? (
             <div className="col-span-full text-center py-12 text-muted-foreground bg-muted rounded-lg">
               No uploads found
             </div>
           ) : (
-            currentUploads.map((upload) => (
+            moderationImgs?.map((upload) => (
               <Card key={upload.id} className="overflow-hidden">
                 <div
                   className="aspect-square relative bg-muted cursor-pointer group"
-                  onClick={() => handleViewImage(upload.url)}
+                  onClick={() => handleViewImage(upload.url_string)}
                 >
-                  {upload.fileType === "image" ? (
-                    <img
-                      src={upload.url}
-                      alt={`${upload.username}'s ${upload.type}`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : upload.fileType === "video" ? (
-                    <div className="flex items-center justify-center h-full">
-                      <Film className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <File className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  )}
+                  <img
+                    src={upload.url_string}
+                    alt={`${upload.profile.username}'s ${upload.image_type}`}
+                    className="w-full h-full object-cover"
+                  />
 
                   {/* Overlay with quick actions */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <div className="hidden md:flex absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center gap-2">
+                    <div className="grid grid-cols-2 items-center justify-center gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewImage(upload.url_string);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="bg-green-400"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleModerateImage(
+                            "APPROVED",
+                            upload.id,
+                            upload.image_type,
+                            upload.url_string,
+                            upload.profile.id,
+                          );
+                        }}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedUpload(upload);
+                          setDeleteConfirmId(upload.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedUpload(upload);
+                          setModerateConfirmId(upload.id);
+                        }}
+                      >
+                        <Ban className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <CardFooter className="p-2 w-full flex flex-col gap-4">
+                  <div className=" flex justify-between items-center w-full">
+                    <div className="flex items-center gap-1 text-xs truncate">
+                      <User className="h-3 w-3 text-muted-foreground" />
+                      <span
+                        className={`truncate max-w-[6rem] ${!upload.profile.username && "text-red-400"}`}
+                      >
+                        {upload.profile.username || "No Username"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <ImageIcon className="h-4 w-4 text-blue-500" />
+                      <span className="text-xs text-muted-foreground capitalize">
+                        {upload.image_type === "AVATAR" ? "Avatar" : "Upload"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex md:hidden items-center p-2 gap-2">
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleViewImage(upload.url);
+                        handleViewImage(upload.url_string);
                       }}
                     >
                       <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="bg-green-400"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleModerateImage(
+                          "APPROVED",
+                          upload.id,
+                          upload.image_type,
+                          upload.url_string,
+                          upload.profile.id,
+                        );
+                      }}
+                    >
+                      <Check className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        setSelectedUpload(upload);
                         setDeleteConfirmId(upload.id);
                       }}
                     >
@@ -360,25 +508,12 @@ export function UserUploadsTable({
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        setSelectedUpload(upload);
                         setModerateConfirmId(upload.id);
                       }}
                     >
                       <Ban className="h-4 w-4" />
                     </Button>
-                  </div>
-                </div>
-                <CardFooter className="p-2 flex justify-between items-center">
-                  <div className="flex items-center gap-1 text-xs truncate">
-                    <User className="h-3 w-3 text-muted-foreground" />
-                    <span className="truncate max-w-[6rem]">
-                      {upload.username}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {getFileTypeIcon(upload.fileType)}
-                    <span className="text-xs text-muted-foreground capitalize">
-                      {upload.type === "avatar" ? "Avatar" : "Upload"}
-                    </span>
                   </div>
                 </CardFooter>
               </Card>
@@ -390,7 +525,7 @@ export function UserUploadsTable({
           {/* <p className="text-sm text-muted-foreground">
             Showing {currentUploads.length} of {totalCount} uploads
           </p> */}
-          {/* <div className="flex gap-2">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -411,7 +546,7 @@ export function UserUploadsTable({
             >
               Next
             </Button>
-          </div> */}
+          </div>
         </div>
       </div>
 
@@ -459,7 +594,15 @@ export function UserUploadsTable({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                deleteConfirmId && handleDeleteImage(deleteConfirmId)
+                deleteConfirmId &&
+                selectedUpload &&
+                handleModerateImage(
+                  "DELETED",
+                  selectedUpload.id,
+                  selectedUpload.image_type,
+                  selectedUpload.url_string,
+                  selectedUpload.profile.id,
+                )
               }
               disabled={isSubmitting}
               className="bg-red-600 hover:bg-red-700"
@@ -490,7 +633,15 @@ export function UserUploadsTable({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                moderateConfirmId && handleModerateImage(moderateConfirmId)
+                moderateConfirmId &&
+                selectedUpload &&
+                handleModerateImage(
+                  "REJECTED",
+                  selectedUpload.id,
+                  selectedUpload.image_type,
+                  selectedUpload.url_string,
+                  selectedUpload.profile.id,
+                )
               }
               disabled={isSubmitting}
               className="bg-orange-600 hover:bg-orange-700"

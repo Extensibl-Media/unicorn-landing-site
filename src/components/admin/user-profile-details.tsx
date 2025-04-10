@@ -42,6 +42,7 @@ import {
   Heart,
   Image,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/browser";
 
 type Profile = {
   id: string;
@@ -84,6 +85,8 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const supabase = createClient();
+
   // Empty handler functions
   const handleApprovalChange = async (status: boolean) => {
     setIsSubmitting(true);
@@ -102,23 +105,6 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to update approval status");
-      }
-
-      const notificationResponse = await fetch("/api/send-notification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: activeProfile.id,
-          title: `Unicorn Landing Account Approval`,
-          body: `Your profile has been ${status ? "approved" : "unapproved"}.`,
-        }),
-      });
-
-      if (!notificationResponse.ok) {
-        const error = await notificationResponse.json();
-        console.log(error);
       }
 
       setActiveProfile({

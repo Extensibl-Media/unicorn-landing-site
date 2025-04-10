@@ -9,6 +9,7 @@ import {
   lastDayOfWeek,
   addSeconds,
   subWeeks,
+  endOfWeek,
 } from "date-fns";
 
 export const GET: APIRoute = async ({ request, cookies }) => {
@@ -22,6 +23,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   const currentDate = new Date();
   // Beginning of current week (Sunday by default)
   const beginningOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 0 });
+  const endOfCurrentWeek = endOfWeek(currentDate, { weekStartsOn: 0 });
   // Beginning of previous week
   const beginningOfPreviousWeek = startOfWeek(
     subWeeks(beginningOfCurrentWeek, 1),
@@ -34,6 +36,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   const beginningOfCurrentWeekISO = beginningOfCurrentWeek.toISOString();
   const beginningOfPreviousWeekISO = beginningOfPreviousWeek.toISOString();
   const endOfPreviousWeekISO = endOfPreviousWeek.toISOString();
+  const endOfCurrentWeekISO = endOfCurrentWeek.toISOString();
 
   // console.log({
   //   currentDateISO,
@@ -121,8 +124,10 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       clubs(*)
       `,
     )
-    .order("date", { ascending: true })
-    .limit(5);
+    .gte("date", currentDateISO)
+    .lte("date", endOfCurrentWeekISO)
+    .order("date", { ascending: true });
+  // .limit(10);
 
   // Check for errors
   if (

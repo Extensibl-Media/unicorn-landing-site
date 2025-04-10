@@ -77,7 +77,22 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .select();
+      .select()
+      .limit(1)
+      .maybeSingle();
+
+    if (approved === true) {
+      await supabaseAdmin.functions.invoke("send-email", {
+        body: {
+          to: data?.email,
+          subject: `Your Unicorn Landing account has been approved!`,
+          html: `<h1>Unicorn Landing</h1><br />
+        <p>Your account has been approved.</p> <br />
+        <p>You can now log in to your account and start connecting with other members.</p> <br />
+        <p>Thank you, The Unicorn Landing App Team</p> <br />`,
+        },
+      });
+    }
 
     if (error) {
       console.error("Error updating user approval status:", error);
@@ -97,7 +112,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
     return new Response(
       JSON.stringify({
         success: true,
-        data: data[0],
+        data: data,
       }),
       {
         status: 200,

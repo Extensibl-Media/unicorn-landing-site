@@ -76,7 +76,20 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .select();
+      .select()
+      .limit(1)
+      .maybeSingle();
+
+    await supabaseAdmin.functions.invoke("send-email", {
+      body: {
+        to: data?.email,
+        subject: `Your Unicorn Landing Verification Request has been approved!`,
+        html: `<h1>Unicorn Landing</h1><br />
+        <p>Your account has been verified.</p> <br />
+        <p>Your account will now feature a Verified checkmark, letting others know your profile can be trusted.</p> <br />
+        <p>Thank you, The Unicorn Landing App Team</p> <br />`,
+      },
+    });
 
     if (error) {
       console.error("Error updating user verification status:", error);
@@ -112,7 +125,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         return new Response(
           JSON.stringify({
             success: true,
-            data: data[0],
+            data: data,
             warning:
               "User verified but verification request status could not be updated",
             requestError: requestError.message,
