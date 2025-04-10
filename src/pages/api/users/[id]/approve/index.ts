@@ -78,7 +78,6 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       })
       .eq("id", id)
       .select()
-      .limit(1)
       .maybeSingle();
 
     if (approved === true) {

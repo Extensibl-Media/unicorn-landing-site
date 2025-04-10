@@ -63,8 +63,6 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
     const { verified, verification_request_id, verification_status } =
       await request.json();
 
-    console.log({ verified, verification_request_id, verification_status });
-
     // Use the admin client to bypass RLS
     const supabaseAdmin = createAdminClient();
 
@@ -77,8 +75,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       })
       .eq("id", id)
       .select()
-      .limit(1)
-      .maybeSingle();
+      .single();
 
     await supabaseAdmin.functions.invoke("send-email", {
       body: {

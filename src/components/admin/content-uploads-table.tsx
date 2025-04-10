@@ -131,10 +131,6 @@ export function UserUploadsTable({
     );
   }, [deleteConfirmId, moderationImgs]);
 
-  useEffect(() => {
-    console.log({ selectedUpload });
-  }, [selectedUpload]);
-
   // useEffect(() => {
   //   const timeoutId = setTimeout(() => {
   //     if (search !== searchQuery) {
