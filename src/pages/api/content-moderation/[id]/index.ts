@@ -31,8 +31,8 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
     const id = params.id;
     const idAsNum = Number(id);
 
-    const { status, imageType, url, userId } = await request.json();
-    console.log({ status });
+    const { status, imageType, url, userId, fromProfile } =
+      await request.json();
 
     if (!id) {
       return new Response(
@@ -131,9 +131,21 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
       throw new Error(error.message);
     }
 
+    const { data: updatedProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    const { data: uploadsData } = await supabaseAdmin
+      .from("content_moderation_images")
+      .select()
+      .eq("user_id", userId);
+
     return new Response(
       JSON.stringify({
         success: true,
+        data: { profile: updatedProfile, uploads: uploadsData },
         message: "Content moderation updated successfully",
       }),
       {

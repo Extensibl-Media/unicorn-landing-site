@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -41,8 +41,11 @@ import {
   Star,
   Heart,
   Image,
+  Trash,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
+
+import type { ContentModerationUpload } from "@/components/admin/content-uploads-table";
 
 type Profile = {
   id: string;
@@ -76,18 +79,31 @@ type Profile = {
 
 interface UserProfileDetailsProps {
   profile: Profile;
+  uploads: ContentModerationUpload[];
 }
 
-export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
+const SUCCESS_MAP = {
+  APPROVED: "Image approved successfully",
+  REJECTED: "Image rejected successfully",
+  DELETED: "Image deleted successfully",
+};
+
+export function UserProfileDetails({
+  profile,
+  uploads,
+}: UserProfileDetailsProps) {
   const [activeProfile, setActiveProfile] = useState<Profile>(profile);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [uploadedMedia, setUploadedMedia] =
+    useState<ContentModerationUpload[]>(uploads);
 
-  const supabase = createClient();
+  useEffect(() => {
+    setUploadedMedia(uploads);
+  }, [uploads]);
 
-  // Empty handler functions
   const handleApprovalChange = async (status: boolean) => {
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -149,15 +165,129 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
     }
   };
 
-  const handleUploadModeration = async (
-    uploadId: string,
-    approved: boolean,
-  ) => {};
-  const getGoogleMapsUrl = () => {
-    return null;
+  const handleModerateImage = async (
+    status: string,
+    uploadId: number,
+    imageType: string,
+    url: string,
+    userId: string | null,
+  ) => {
+    if (!userId) {
+      setErrorMessage("User ID is required");
+      return;
+    }
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const upload = uploadedMedia.find((u) => u.id === uploadId);
+
+    try {
+      if (!upload) {
+        throw new Error("Upload not found");
+      }
+      const response = await fetch(`/api/content-moderation/${uploadId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status, imageType, url, userId }),
+      });
+
+      if (!response.ok) throw new Error("Something went wrong");
+      const responseData = await response.json();
+
+      setSuccessMessage(SUCCESS_MAP[status as keyof typeof SUCCESS_MAP]);
+      setActiveProfile(responseData.data.profile);
+      setUploadedMedia(responseData.data.uploads);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  const handlePreferenceChange = async (field: string, value: any) => {};
-  const handleVerificationChange = async (verified: boolean) => {};
+
+  const handleHideFromSearchChange = async (hidden: boolean) => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await fetch(
+        `/api/users/${activeProfile.id}/hide-from-search`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ hidefromSearch: hidden }),
+        },
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update approval status");
+      }
+
+      setActiveProfile({
+        ...activeProfile,
+        hide_from_search: hidden,
+      });
+
+      setSuccessMessage(`User ${hidden ? "hidden" : "shown"} successfully`);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleVerificationChange = async (verified: boolean) => {
+    let response: Response;
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      if (verified) {
+        response = await fetch(`/api/users/${activeProfile.id}/verify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            verified: true,
+            verification_status: "APPROVED",
+          }),
+        });
+      } else {
+        response = await fetch(`/api/users/${activeProfile.id}/verify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            verified: false,
+            verification_status: "DENIED",
+          }),
+        });
+      }
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to process user verification");
+      }
+
+      setActiveProfile({
+        ...activeProfile,
+        verified: verified,
+      });
+      setSuccessMessage(
+        `User verification ${verified ? "approved" : "denied"} successfully.`,
+      );
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -256,20 +386,6 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
                 </div>
 
                 <div className="mt-6 space-y-3">
-                  <div className="flex gap-2 items-center">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <span className="text-muted-foreground text-sm">
-                        Full Name:
-                      </span>
-                      <div>
-                        {activeProfile.first_name
-                          ? `${activeProfile.first_name} ${activeProfile.last_name || ""}`
-                          : "Not provided"}
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="flex gap-2 items-center">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
@@ -384,7 +500,7 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
                   </h3>
                   <p className="whitespace-pre-line">
                     {activeProfile.interested_in?.map((interest) => (
-                      <p>- {interest}</p>
+                      <span>- {interest}</span>
                     )) || "Not specified"}
                   </p>
                 </div>
@@ -428,7 +544,10 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {profile.user_uploads?.map((upload, index) => (
-                    <div key={upload} className="relative group">
+                    <div
+                      key={`${upload}-${Math.floor(Math.random() * 1000)}`}
+                      className="relative group"
+                    >
                       <div className="aspect-square rounded-md overflow-hidden bg-muted">
                         <img
                           src={upload}
@@ -441,20 +560,71 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
                           <Button
                             size="sm"
                             variant="default"
-                            onClick={() => handleUploadModeration(upload, true)}
-                            // disabled={upload}
+                            className="bg-green-400"
+                            onClick={() => {
+                              const uploadData = uploadedMedia.find(
+                                (media) => media.url_string === upload,
+                              );
+                              if (uploadData) {
+                                handleModerateImage(
+                                  "APPROVED",
+                                  uploadData.id,
+                                  uploadData.image_type,
+                                  uploadData.url_string,
+                                  activeProfile.id,
+                                );
+                              } else {
+                                setErrorMessage("Upload not found");
+                              }
+                            }}
                           >
                             <CheckCircle className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() =>
-                              handleUploadModeration(upload, false)
-                            }
-                            disabled={!upload}
+                            onClick={() => {
+                              const uploadData = uploadedMedia.find(
+                                (media) => media.url_string === upload,
+                              );
+                              if (uploadData) {
+                                handleModerateImage(
+                                  "REJECTED",
+                                  uploadData.id,
+                                  uploadData.image_type,
+                                  uploadData.url_string,
+                                  activeProfile.id,
+                                );
+                              } else {
+                                setErrorMessage("Upload not found");
+                              }
+                            }}
                           >
                             <XCircle className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              console.log(upload);
+                              const uploadData = uploadedMedia.find(
+                                (media) => media.url_string === upload,
+                              );
+                              if (uploadData) {
+                                handleModerateImage(
+                                  "DELETED",
+                                  uploadData.id,
+                                  uploadData.image_type,
+                                  uploadData.url_string,
+                                  activeProfile.id,
+                                );
+                              } else {
+                                setErrorMessage("Upload not found");
+                              }
+                            }}
+                          >
+                            <Trash className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -463,7 +633,11 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
                           variant={upload ? "default" : "destructive"}
                           className="opacity-80"
                         >
-                          {upload ? "Approved" : "Pending"}
+                          {
+                            uploadedMedia.find(
+                              (media) => media.url_string === upload,
+                            )?.status
+                          }
                         </Badge>
                       </div>
                     </div>
@@ -529,7 +703,7 @@ export function UserProfileDetails({ profile }: UserProfileDetailsProps) {
                       id="hide-search"
                       checked={!!activeProfile.hide_from_search}
                       onCheckedChange={(checked) =>
-                        handlePreferenceChange("hide_from_search", checked)
+                        handleHideFromSearchChange(checked)
                       }
                     />
                   </div>

@@ -121,7 +121,6 @@ export function VerificationRequestsTable({
     window.location.href = `${window.location.pathname}?${params.toString()}`;
   };
 
-  // Empty handler functions
   const handleApprove = async (requestId: number) => {
     setIsSubmitting(true);
     setErrorMessage(null);

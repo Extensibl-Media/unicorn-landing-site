@@ -109,9 +109,40 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         .from("profile_verification_requests")
         .update({
           status: verification_status,
+          verified,
           updated_at: new Date().toISOString(),
         })
         .eq("id", verification_request_id);
+
+      if (requestError) {
+        console.error(
+          "Error updating verification request status:",
+          requestError,
+        );
+        // Don't fail the whole operation if this part fails, but include in response
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: data,
+            warning:
+              "User verified but verification request status could not be updated",
+            requestError: requestError.message,
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+    } else {
+      const { error: requestError } = await supabaseAdmin
+        .from("profile_verification_requests")
+        .update({
+          status: verification_status,
+          verified,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", id);
 
       if (requestError) {
         console.error(
@@ -138,7 +169,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
     return new Response(
       JSON.stringify({
         success: true,
-        data: data[0],
+        data: data,
       }),
       {
         status: 200,

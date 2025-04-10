@@ -22,6 +22,12 @@ const { data: profile, error } = await supabase
     .eq("id", id)
     .single();
 
+const { data: uploads, error: uploadsError } = await supabase
+    .from("content_moderation_images")
+    .select("*")
+    .eq("user_id", id)
+    .eq("image_type", "PROFILE_IMAGE");
+
 if (error || !profile) {
     return Astro.redirect("/admin/users");
 }
@@ -44,6 +50,6 @@ if (error || !profile) {
             </a>
         </div>
 
-        <UserProfileDetails client:load profile={profile} />
+        <UserProfileDetails client:load profile={profile} uploads={uploads} />
     </div>
 </AdminLayout>
