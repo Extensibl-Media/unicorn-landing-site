@@ -137,6 +137,7 @@ export function UserProfileDetails({
       setIsSubmitting(false);
     }
   };
+
   const handleBlockUser = async () => {
     setIsSubmitting(true);
     setErrorMessage(null);
