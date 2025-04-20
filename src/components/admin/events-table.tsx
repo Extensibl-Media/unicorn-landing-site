@@ -1,4 +1,3 @@
-// src/components/admin/clubs-table.tsx
 import React, { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

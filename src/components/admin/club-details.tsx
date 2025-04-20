@@ -49,7 +49,7 @@ export function ClubDetails({ club, reviews }: ClubDetailsProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setEditedClub((prev) => ({
@@ -88,9 +88,11 @@ export function ClubDetails({ club, reviews }: ClubDetailsProps) {
           website_url: editedClub.website_url,
           cover_image: editedClub.cover_image,
         }),
-      }).then((response) => {
-        if (!response.ok)
-          return response.json().then((err) => Promise.reject(err));
+      }).then(async (response) => {
+        if (!response.ok) {
+          const err = await response.json();
+          return await Promise.reject(err);
+        }
         return response.json();
       });
 
@@ -100,7 +102,7 @@ export function ClubDetails({ club, reviews }: ClubDetailsProps) {
       setIsEditing(false);
     } catch (err) {
       setErrorMessage(
-        err instanceof Error ? err.message : "An error occurred while saving"
+        err instanceof Error ? err.message : "An error occurred while saving",
       );
     } finally {
       setIsSubmitting(false);
@@ -109,19 +111,6 @@ export function ClubDetails({ club, reviews }: ClubDetailsProps) {
 
   const handleDeleteSuccess = () => {
     window.location.href = "/admin/clubs";
-  };
-
-  const getGoogleMapsUrl = () => {
-    if (editedClub.latitude && editedClub.longitude) {
-      return `https://www.google.com/maps/search/?api=1&query=${editedClub.latitude},${editedClub.longitude}`;
-    } else if (editedClub.address) {
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        `${editedClub.address}, ${editedClub.city || ""}, ${
-          editedClub.state || ""
-        }`
-      )}`;
-    }
-    return null;
   };
 
   return (
@@ -322,8 +311,8 @@ export function ClubDetails({ club, reviews }: ClubDetailsProps) {
                         <div className="space-y-2">
                           <Label htmlFor="lat">Latitude</Label>
                           <Input
-                            id="lat"
-                            name="lat"
+                            id="latitude"
+                            name="latitude"
                             type="number"
                             step="any"
                             value={editedClub.latitude || ""}
@@ -333,8 +322,8 @@ export function ClubDetails({ club, reviews }: ClubDetailsProps) {
                         <div className="space-y-2">
                           <Label htmlFor="lon">Longitude</Label>
                           <Input
-                            id="lon"
-                            name="lon"
+                            id="longitude"
+                            name="longitude"
                             type="number"
                             step="any"
                             value={editedClub.longitude || ""}
@@ -375,19 +364,6 @@ export function ClubDetails({ club, reviews }: ClubDetailsProps) {
                             </div>
                           </div>
                         </div>
-                      )}
-
-                      {getGoogleMapsUrl() && (
-                        <Button variant="outline" className="w-full" asChild>
-                          <a
-                            href={getGoogleMapsUrl() || undefined}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <MapPin className="mr-2 h-4 w-4" />
-                            View on Google Maps
-                          </a>
-                        </Button>
                       )}
                     </div>
                   )}
