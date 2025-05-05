@@ -1,21 +1,34 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { MIN_ADMIN_LEVEL } from "./config";
+import { createClient } from "./supabase/server";
+import type { AstroCookies } from "astro";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const checkIsadmin = async (
-  serverClient: SupabaseClient,
-): Promise<Response | undefined> => {
+export const checkIsadmin = async ({
+  headers,
+  cookies,
+}: {
+  headers: Headers;
+  cookies: AstroCookies;
+}): Promise<void> => {
+  const serverClient = createClient({
+    headers: headers,
+    cookies: cookies,
+  });
   const {
-    data: { session },
+    data: { user },
     error,
-  } = await serverClient.auth.getSession();
+  } = await serverClient.auth.getUser();
 
-  if (!session || error) {
+  console.log({ user, error });
+  if (!user || error) {
     console.error("Error getting session:", error);
+    // throw new Error("Error getting session");
     return new Response(
       JSON.stringify({
         success: false,
@@ -30,11 +43,12 @@ export const checkIsadmin = async (
   }
 
   const isAdmin =
-    session.user?.app_metadata?.claims_admin === true ||
-    (session.user?.app_metadata?.user_level &&
-      session.user.app_metadata.user_level >= MIN_ADMIN_LEVEL);
+    user?.app_metadata?.claims_admin === true ||
+    (user?.app_metadata?.user_level &&
+      user.app_metadata.user_level >= MIN_ADMIN_LEVEL);
 
   if (!isAdmin) {
+    // throw new Error("Permission Denied");
     return new Response(
       JSON.stringify({
         success: false,

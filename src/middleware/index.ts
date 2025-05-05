@@ -97,8 +97,8 @@ export const onRequest = defineMiddleware(
 
     // All checks passed, continue to route
     // console.log("Welcome, Admin User");
+    // locals.user = user;
 
-    const response = await next();
-    return response;
+    return next();
   },
 );

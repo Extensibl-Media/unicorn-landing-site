@@ -12,12 +12,21 @@ import {
   endOfWeek,
 } from "date-fns";
 
-export const GET: APIRoute = async ({ request, cookies }) => {
-  const serverClient = createClient({
-    headers: request.headers,
-    cookies,
-  });
-  checkIsadmin(serverClient);
+export const GET: APIRoute = async ({ locals, request, cookies }) => {
+  // const userLevel = request.headers.get("x-user-level");
+  // if (!userLevel) throw new Error("No user level provided");
+  // if (parseInt(userLevel) < 1000) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       success: false,
+  //       error: "Unauthorized",
+  //     }),
+  //     {
+  //       headers: { "Content-Type": "application/json" },
+  //       status: 401,
+  //     },
+  //   );
+  // }
 
   // Current date
   const currentDate = new Date();
@@ -37,13 +46,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   const beginningOfPreviousWeekISO = beginningOfPreviousWeek.toISOString();
   const endOfPreviousWeekISO = endOfPreviousWeek.toISOString();
   const endOfCurrentWeekISO = endOfCurrentWeek.toISOString();
-
-  // console.log({
-  //   currentDateISO,
-  //   beginningOfCurrentWeekISO,
-  //   beginningOfPreviousWeekISO,
-  //   endOfPreviousWeekISO,
-  // });
 
   const adminClient = createAdminClient();
 

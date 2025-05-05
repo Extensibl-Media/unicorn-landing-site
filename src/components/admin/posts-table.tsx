@@ -6,21 +6,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Badge,
-} from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Eye, Trash, ArrowUpRightSquare, SquareCheckBig, Rocket } from "lucide-react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Eye,
+  Trash,
+  ArrowUpRightSquare,
+  SquareCheckBig,
+  Rocket,
+  Slash,
+  SquareSlash,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "../ui/button";
 import { updatePostClient, type Post } from "@/lib/supabase/blog";
 import { cn } from "@/lib/utils";
-
 
 interface PostsTableProps {
   posts: Post[];
@@ -53,9 +60,9 @@ export function PostsTable({ posts, sortBy, sortOrder }: PostsTableProps) {
                 <Badge
                   className={cn(
                     post.status === "published" && "bg-green-500",
-                    post.status === 'draft' && "bg-yellow-500",
-                    post.status === 'archived' && 'bg-gray-500')
-                  }
+                    post.status === "draft" && "bg-yellow-500",
+                    post.status === "archived" && "bg-gray-500",
+                  )}
                 >
                   {post.status}
                 </Badge>
@@ -71,7 +78,9 @@ export function PostsTable({ posts, sortBy, sortOrder }: PostsTableProps) {
                 </div>
               </TableCell>
               <TableCell>
-                {formatDistanceToNow(new Date(post.updated_at as string), { addSuffix: true })}
+                {formatDistanceToNow(new Date(post.updated_at as string), {
+                  addSuffix: true,
+                })}
               </TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -81,27 +90,46 @@ export function PostsTable({ posts, sortBy, sortOrder }: PostsTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    {post.status === "published" ? (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updatePostClient(post.id, { status: "draft" })
+                        }
+                      >
+                        <SquareSlash className="mr-2 h-4 w-4" />
+                        Unpublish
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updatePostClient(post.id, { status: "published" })
+                        }
+                      >
+                        <Rocket className="mr-2 h-4 w-4" />
+                        Publish
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
-                      onClick={() => updatePostClient(post.id, { status: "published" })}
-                    >
-                      <Rocket className="mr-2 h-4 w-4" />
-                      Publish
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => window.location.href = `/admin/blog/${post.id}/edit`}
+                      onClick={() =>
+                        (window.location.href = `/admin/blog/${post.id}/edit`)
+                      }
                     >
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => window.location.href = `/admin/blog/${post.id}`}
+                      onClick={() =>
+                        (window.location.href = `/admin/blog/${post.id}`)
+                      }
                     >
                       <Eye className="mr-2 h-4 w-4" />
                       Preview
                     </DropdownMenuItem>
-                    {post.status === 'published' && (
+                    {post.status === "published" && (
                       <DropdownMenuItem
-                        onClick={() => window.location.href = `/blog/${post.slug}`}
+                        onClick={() =>
+                          (window.location.href = `/blog/${post.slug}`)
+                        }
                       >
                         <ArrowUpRightSquare className="mr-2 h-4 w-4" />
                         View Live
@@ -110,7 +138,9 @@ export function PostsTable({ posts, sortBy, sortOrder }: PostsTableProps) {
                     <DropdownMenuItem
                       className="text-red-600"
                       onClick={() => {
-                        if (confirm('Are you sure you want to delete this post?')) {
+                        if (
+                          confirm("Are you sure you want to delete this post?")
+                        ) {
                           // Add delete functionality
                         }
                       }}

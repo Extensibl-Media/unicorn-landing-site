@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import Navbar from "@/components/marketing/navbar.astro";
 import Footer from "@/components/marketing/Footer.astro";
 // import splash from "../assets/images/splash.svg";
+const { title, description } = Astro.props;
 ---
 
 <!doctype html>
@@ -25,10 +26,11 @@ import Footer from "@/components/marketing/Footer.astro";
         />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="generator" content={Astro.generator} />
-        <title>Unicorn Landing</title>
+        <title>{title || "Unicorn Landing"}</title>
         <meta
             name="description"
-            content="Women connecting with women in the Lifestyle. Download the app from your favorite app store and join the community."
+            content={description ||
+                "Women connecting with women in the Lifestyle. Download the app from your favorite app store and join the community."}
         />
     </head>
     <body>

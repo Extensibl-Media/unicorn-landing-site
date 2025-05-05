@@ -1,4 +1,6 @@
-export type Json =
+Need to install the following packages:
+supabase@2.22.6
+Ok to proceed? (y) export type Json =
   | string
   | number
   | boolean
@@ -178,6 +180,44 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      content_moderation_images: {
+        Row: {
+          created_at: string
+          id: number
+          image_type: string
+          status: string
+          updated_at: string
+          url_string: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          image_type: string
+          status?: string
+          updated_at?: string
+          url_string: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          image_type?: string
+          status?: string
+          updated_at?: string
+          url_string?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_moderation_images_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversation_participants: {
         Row: {
@@ -486,6 +526,7 @@ export type Database = {
           legacy_user_id: string
           migration_token: string
           new_user_id: string | null
+          queue_number: number | null
           status: string
           updated_at: string | null
         }
@@ -496,6 +537,7 @@ export type Database = {
           legacy_user_id: string
           migration_token: string
           new_user_id?: string | null
+          queue_number?: number | null
           status?: string
           updated_at?: string | null
         }
@@ -506,6 +548,7 @@ export type Database = {
           legacy_user_id?: string
           migration_token?: string
           new_user_id?: string | null
+          queue_number?: number | null
           status?: string
           updated_at?: string | null
         }
@@ -516,6 +559,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "legacy_users"
             referencedColumns: ["legacy_id"]
+          },
+          {
+            foreignKeyName: "legacy_migrations_queue_number_fkey"
+            columns: ["queue_number"]
+            isOneToOne: false
+            referencedRelation: "legacy_users"
+            referencedColumns: ["migration_queue_number"]
           },
         ]
       }
@@ -528,6 +578,7 @@ export type Database = {
           legacy_id: string
           lon: number | null
           metadata: Json | null
+          migration_queue_number: number
           nickname: string
         }
         Insert: {
@@ -538,6 +589,7 @@ export type Database = {
           legacy_id: string
           lon?: number | null
           metadata?: Json | null
+          migration_queue_number?: number
           nickname: string
         }
         Update: {
@@ -548,7 +600,41 @@ export type Database = {
           legacy_id?: string
           lon?: number | null
           metadata?: Json | null
+          migration_queue_number?: number
           nickname?: string
+        }
+        Relationships: []
+      }
+      lib_links: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: number
+          image: string | null
+          order: number | null
+          title: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: number
+          image?: string | null
+          order?: number | null
+          title: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: number
+          image?: string | null
+          order?: number | null
+          title?: string
+          url?: string
         }
         Relationships: []
       }
@@ -728,6 +814,42 @@ export type Database = {
           created_at?: string
           data?: Json
           id?: number
+        }
+        Relationships: []
+      }
+      podcast_links: {
+        Row: {
+          channel_name: string
+          created_at: string
+          duration: number
+          external_url: string
+          id: number
+          image_url: string | null
+          release_date: string | null
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          channel_name: string
+          created_at?: string
+          duration: number
+          external_url: string
+          id?: number
+          image_url?: string | null
+          release_date?: string | null
+          subtitle?: string | null
+          title: string
+        }
+        Update: {
+          channel_name?: string
+          created_at?: string
+          duration?: number
+          external_url?: string
+          id?: number
+          image_url?: string | null
+          release_date?: string | null
+          subtitle?: string | null
+          title?: string
         }
         Relationships: []
       }
@@ -962,11 +1084,54 @@ export type Database = {
         }
         Relationships: []
       }
+      registered_devices: {
+        Row: {
+          created_at: string
+          device_id: string
+          device_name: string | null
+          device_type: string
+          id: number
+          last_used_at: string
+          notifications_enabled: boolean
+          push_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          device_name?: string | null
+          device_type: string
+          id?: number
+          last_used_at?: string
+          notifications_enabled?: boolean
+          push_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          device_name?: string | null
+          device_type?: string
+          id?: number
+          last_used_at?: string
+          notifications_enabled?: boolean
+          push_token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registered_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           content: string
           created_at: string
-          helped_by_id: string
           id: number
           resolved: boolean
           subject: string | null
@@ -976,7 +1141,6 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
-          helped_by_id?: string
           id?: number
           resolved?: boolean
           subject?: string | null
@@ -986,7 +1150,6 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
-          helped_by_id?: string
           id?: number
           resolved?: boolean
           subject?: string | null
@@ -994,13 +1157,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "support_tickets_helped_by_id_fkey"
-            columns: ["helped_by_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "support_tickets_user_id_fkey"
             columns: ["user_id"]
@@ -1309,16 +1465,11 @@ export type Database = {
     }
     Functions: {
       admin_login: {
-        Args: {
-          admin_login_email: string
-        }
+        Args: { admin_login_email: string }
         Returns: boolean
       }
       archive_conversation_for_user: {
-        Args: {
-          p_conversation_id: string
-          p_user_id: string
-        }
+        Args: { p_conversation_id: string; p_user_id: string }
         Returns: undefined
       }
       cleanup_expired_dislikes: {
@@ -1338,45 +1489,29 @@ export type Database = {
         Returns: string
       }
       delete_claim: {
-        Args: {
-          uid: string
-          claim: string
-        }
+        Args: { uid: string; claim: string }
         Returns: string
       }
       delete_conversation_between_users: {
-        Args: {
-          p_user_id_1: string
-          p_user_id_2: string
-        }
+        Args: { p_user_id_1: string; p_user_id_2: string }
         Returns: {
           deleted_conversation_id: string
         }[]
       }
       delete_conversation_for_user: {
-        Args: {
-          p_conversation_id: string
-          p_user_id: string
-        }
+        Args: { p_conversation_id: string; p_user_id: string }
         Returns: undefined
       }
       generate_slug: {
-        Args: {
-          title: string
-        }
+        Args: { title: string }
         Returns: string
       }
       get_claim: {
-        Args: {
-          uid: string
-          claim: string
-        }
+        Args: { uid: string; claim: string }
         Returns: Json
       }
       get_claims: {
-        Args: {
-          uid: string
-        }
+        Args: { uid: string }
         Returns: Json
       }
       get_conversation_messages: {
@@ -1444,10 +1579,140 @@ export type Database = {
           verified: boolean
         }[]
       }
-      get_my_claim: {
+      get_filtered_profiles_alt: {
         Args: {
-          claim: string
+          user_id_param: string
+          filter_type: string
+          search_radius_meters?: number
+          days_ago?: number
+          page_size?: number
+          last_value?: string
+          last_value_featured?: boolean
+          last_value_distance?: number
+          search_term?: string
+          target_latitude?: number
+          target_longitude?: number
         }
+        Returns: {
+          age: number | null
+          approved: boolean
+          avatar_url: string | null
+          bio: string | null
+          birthday: string | null
+          completed_onboarding: boolean
+          created_at: string
+          email: string | null
+          featured_expiry: string | null
+          featured_user: boolean | null
+          first_name: string | null
+          geopoint: unknown | null
+          hide_from_search: boolean
+          id: string
+          ideal_match: string | null
+          interested_in: Database["public"]["Enums"]["match_interests"][] | null
+          last_name: string | null
+          latitude: number | null
+          legacy_id: number | null
+          lifestyle_experience: string | null
+          location: string | null
+          longitude: number | null
+          looking_for: Database["public"]["Enums"]["profile_types"] | null
+          onboarding_step: number | null
+          personality_style: string[] | null
+          preferred_age_max: number | null
+          preferred_age_min: number | null
+          premium_user: boolean
+          profile_type: Database["public"]["Enums"]["profile_types"] | null
+          updated_at: string | null
+          user_uploads: string[] | null
+          username: string | null
+          verified: boolean
+        }[]
+      }
+      get_filtered_profiles_new_alt: {
+        Args: {
+          user_id_param: string
+          filter_type: string
+          search_radius_meters?: number
+          days_ago?: number
+          page_size?: number
+          last_value?: string
+          last_value_featured?: boolean
+          last_value_distance?: number
+          search_term?: string
+          target_latitude?: number
+          target_longitude?: number
+        }
+        Returns: {
+          age: number | null
+          approved: boolean
+          avatar_url: string | null
+          bio: string | null
+          birthday: string | null
+          completed_onboarding: boolean
+          created_at: string
+          email: string | null
+          featured_expiry: string | null
+          featured_user: boolean | null
+          first_name: string | null
+          geopoint: unknown | null
+          hide_from_search: boolean
+          id: string
+          ideal_match: string | null
+          interested_in: Database["public"]["Enums"]["match_interests"][] | null
+          last_name: string | null
+          latitude: number | null
+          legacy_id: number | null
+          lifestyle_experience: string | null
+          location: string | null
+          longitude: number | null
+          looking_for: Database["public"]["Enums"]["profile_types"] | null
+          onboarding_step: number | null
+          personality_style: string[] | null
+          preferred_age_max: number | null
+          preferred_age_min: number | null
+          premium_user: boolean
+          profile_type: Database["public"]["Enums"]["profile_types"] | null
+          updated_at: string | null
+          user_uploads: string[] | null
+          username: string | null
+          verified: boolean
+        }[]
+      }
+      get_filtered_profiles_unified: {
+        Args: {
+          user_id_param: string
+          filter_type: string
+          search_radius_meters?: number
+          days_ago?: number
+          page_size?: number
+          last_value?: string
+          last_value_featured?: boolean
+          last_value_distance?: number
+          search_term?: string
+          target_latitude?: number
+          target_longitude?: number
+        }
+        Returns: Database["public"]["CompositeTypes"]["profile_with_distance"][]
+      }
+      get_filtered_profiles_with_distance: {
+        Args: {
+          user_id_param: string
+          filter_type: string
+          search_radius_meters?: number
+          days_ago?: number
+          page_size?: number
+          last_value?: string
+          last_value_featured?: boolean
+          last_value_distance?: number
+          search_term?: string
+          target_latitude?: number
+          target_longitude?: number
+        }
+        Returns: Database["public"]["CompositeTypes"]["profile_with_distance"][]
+      }
+      get_my_claim: {
+        Args: { claim: string }
         Returns: Json
       }
       get_my_claims: {
@@ -1455,11 +1720,7 @@ export type Database = {
         Returns: Json
       }
       get_nearby_clubs: {
-        Args: {
-          _target_lon: number
-          _target_lat: number
-          _distance: number
-        }
+        Args: { _target_lon: number; _target_lat: number; _distance: number }
         Returns: {
           id: number
           created_at: string
@@ -1507,9 +1768,7 @@ export type Database = {
         }[]
       }
       get_user_conversation_previews: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: {
           conversation_id: string
           updated_at: string
@@ -1565,9 +1824,7 @@ export type Database = {
         }[]
       }
       increment_post_views: {
-        Args: {
-          post_id: string
-        }
+        Args: { post_id: string }
         Returns: undefined
       }
       insert_club: {
@@ -1607,16 +1864,11 @@ export type Database = {
         Returns: boolean
       }
       mark_conversation_as_read: {
-        Args: {
-          p_conversation_id: string
-          p_profile_id?: string
-        }
+        Args: { p_conversation_id: string; p_profile_id?: string }
         Returns: undefined
       }
       publish_post: {
-        Args: {
-          post_id: string
-        }
+        Args: { post_id: string }
         Returns: {
           author_id: string | null
           content: string | null
@@ -1688,30 +1940,19 @@ export type Database = {
         }[]
       }
       set_claim: {
-        Args: {
-          uid: string
-          claim: string
-          value: Json
-        }
+        Args: { uid: string; claim: string; value: Json }
         Returns: string
       }
       unaccent: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: string
       }
       unaccent_init: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       unarchive_conversation_for_user: {
-        Args: {
-          p_conversation_id: string
-          p_user_id: string
-        }
+        Args: { p_conversation_id: string; p_user_id: string }
         Returns: undefined
       }
     }
@@ -1726,32 +1967,69 @@ export type Database = {
       verification_status: "PENDING" | "APPROVED" | "DENIED"
     }
     CompositeTypes: {
-      [_ in never]: never
+      profile_with_distance: {
+        id: string | null
+        updated_at: string | null
+        username: string | null
+        email: string | null
+        first_name: string | null
+        last_name: string | null
+        avatar_url: string | null
+        geopoint: unknown | null
+        profile_type: Database["public"]["Enums"]["profile_types"] | null
+        looking_for: Database["public"]["Enums"]["profile_types"] | null
+        birthday: string | null
+        age: number | null
+        preferred_age_min: number | null
+        preferred_age_max: number | null
+        location: string | null
+        personality_style: string[] | null
+        lifestyle_experience: string | null
+        bio: string | null
+        ideal_match: string | null
+        interested_in: Database["public"]["Enums"]["match_interests"][] | null
+        verified: boolean | null
+        featured_user: boolean | null
+        hide_from_search: boolean | null
+        created_at: string | null
+        user_uploads: string[] | null
+        featured_expiry: string | null
+        premium_user: boolean | null
+        approved: boolean | null
+        latitude: number | null
+        longitude: number | null
+        legacy_id: number | null
+        completed_onboarding: boolean | null
+        onboarding_step: number | null
+        distance: number | null
+      }
     }
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1759,20 +2037,22 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1780,20 +2060,22 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1801,21 +2083,23 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
@@ -1824,6 +2108,21 @@ export type CompositeTypes<
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      attachment_type: ["image", "file"],
+      match_interests: ["UNICORNS", "COUPLES", "FRIENDS"],
+      message_status: ["READ", "UNREAD"],
+      post_status: ["draft", "published", "archived"],
+      profile_filter_type: ["ALL", "NEARBY", "NEWLY_REGISTERED", "FEATURED"],
+      profile_types: ["COUPLE", "UNICORN"],
+      report_status_types: ["PENDING", "RESOLVED", "CLOSED"],
+      verification_status: ["PENDING", "APPROVED", "DENIED"],
+    },
+  },
+} as const

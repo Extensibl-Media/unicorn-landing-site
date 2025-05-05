@@ -15,6 +15,7 @@ import { Label } from "../ui/label";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 import type { PostgrestError } from "@supabase/supabase-js";
+import { Alert } from "../ui/alert";
 
 type Link = {
   id: number;
@@ -38,7 +39,7 @@ export default function LinksTable({ links }: LinksProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedLink, setSelectedLink] = useState<Link | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [newLink, setNewLink] = useState<Partial<Link>>({
     title: "",
@@ -80,19 +81,25 @@ export default function LinksTable({ links }: LinksProps) {
     setIsSubmitting(true);
     setError(null);
 
+    console.log(newLink);
+
     try {
-      if (!newLink.title?.length || !newLink.url.length) {
+      if (!newLink.title?.length || !newLink.url?.length) {
         setError("Please fill in all required fields.");
         return;
       }
-      const { error } = await supabase.from("lib_links").insert([
+      const { data, error } = await supabase.from("lib_links").insert([
         {
           title: newLink.title,
           description: newLink.description,
-          url: newLink.url,
+          url: newLink.url as string,
           active: true,
+          image:
+            "https://api.unicornlanding.com/storage/v1/object/public/brand-assets//link-icon.svg",
         },
       ]);
+
+      console.log({ data, error });
 
       if (error) throw error;
 
@@ -152,6 +159,22 @@ export default function LinksTable({ links }: LinksProps) {
     </div>
   ) : (
     <>
+      <div className="flex justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Links</h1>
+          <p className="text-muted-foreground">
+            View and manage Link In Bio links.
+          </p>
+        </div>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus /> Create New Link
+        </Button>
+      </div>
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md mt-4">
+          {error}
+        </div>
+      )}
       {linkData.length === 0 ? (
         <div className="w-full p-8 bg-white border border-gray-200 rounded-lg flex flex-col items-center justify-center text-center gap-4">
           <p>No Links created yet.</p>
@@ -164,7 +187,9 @@ export default function LinksTable({ links }: LinksProps) {
         </div>
       ) : (
         <div>
-          <p>Has Links</p>
+          {linkData.map((link) => (
+            <p>{link.title}</p>
+          ))}
         </div>
       )}
 

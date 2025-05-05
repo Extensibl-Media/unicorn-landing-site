@@ -50,7 +50,7 @@ export async function getPosts(
     page?: number;
     limit?: number;
     tag?: string;
-  }
+  },
 ) {
   const supabase = createClient({
     headers: request.headers,
@@ -71,7 +71,7 @@ export async function getPosts(
         name
       )
     `,
-      { count: "exact" }
+      { count: "exact" },
     )
     .eq("status", "published")
     .order("published_at", { ascending: false })
@@ -96,7 +96,43 @@ export async function getPosts(
 export async function getPostBySlug(
   request: Request,
   cookies: AstroCookies,
-  slug: string
+  slug: string | undefined,
+) {
+  if (!slug) throw new Error("Slug required");
+  const supabase = createClient({
+    headers: request.headers,
+    cookies: cookies,
+  });
+
+  const { data: post, error } = await supabase
+    .from("posts")
+    .select(
+      `
+      *,
+      tags!posts_tags (
+        id,
+        name
+      )
+    `,
+    )
+    .eq("slug", slug)
+    .single();
+
+  if (error) throw error;
+
+  // Increment view count
+  if (post) {
+    await supabase.rpc("increment_post_views", { post_id: post.id });
+  }
+
+  return post;
+}
+
+// Function to get a single post by id
+export async function getPostById(
+  request: Request,
+  cookies: AstroCookies,
+  id: string,
 ) {
   const supabase = createClient({
     headers: request.headers,
@@ -112,17 +148,12 @@ export async function getPostBySlug(
         id,
         name
       )
-    `
+    `,
     )
-    .eq("slug", slug)
+    .eq("id", id)
     .single();
 
   if (error) throw error;
-
-  // Increment view count
-  if (post) {
-    await supabase.rpc("increment_post_views", { post_id: post.id });
-  }
 
   return post;
 }
@@ -131,7 +162,7 @@ export async function getPostBySlug(
 export async function getAdminPosts(
   request: Request,
   cookies: AstroCookies,
-  options?: AdminPostsOptions
+  options?: AdminPostsOptions,
 ) {
   const supabase = createClient({
     headers: request.headers,
@@ -160,7 +191,7 @@ export async function getAdminPosts(
         name
       )
     `,
-    { count: "exact" }
+    { count: "exact" },
   );
 
   if (search) {
@@ -203,8 +234,8 @@ export async function getAdminPosts(
       post.status === "published"
         ? "green"
         : post.status === "draft"
-        ? "yellow"
-        : "gray",
+          ? "yellow"
+          : "gray",
     canPublish:
       post.status === "draft" && post?.content && post.content?.length > 0,
     needsReview:
@@ -241,7 +272,7 @@ export async function createPost(
     seo_title?: string;
     seo_description?: string;
     tags?: string[]; // Array of tag IDs
-  }
+  },
 ) {
   const supabase = createClient({
     headers: request.headers,
@@ -294,7 +325,7 @@ export async function createPostClient(post: {
   content?: string;
   excerpt?: string;
   featured_image?: string;
-  status?: "draft" | "published";
+  status?: string;
   seo_title?: string;
   seo_description?: string;
   tags?: string[]; // Array of tag IDs
@@ -347,7 +378,7 @@ export async function updatePostClient(
   postId: string,
   updates: Partial<Post> & {
     tags?: string[]; // Array of tag IDs
-  }
+  },
 ) {
   const supabase = createBrowserClient();
 
@@ -395,7 +426,7 @@ export async function updatePost(
   postId: string,
   updates: Partial<Post> & {
     tags?: string[]; // Array of tag IDs
-  }
+  },
 ) {
   const supabase = createClient({
     headers: request.headers,
@@ -445,7 +476,7 @@ export async function updatePost(
 export async function deletePost(
   request: Request,
   cookies: AstroCookies,
-  postId: string
+  postId: string,
 ) {
   const supabase = createClient({
     headers: request.headers,
@@ -483,7 +514,7 @@ export async function createTag(
   tag: {
     name: string;
     description?: string;
-  }
+  },
 ) {
   const supabase = createClient({
     headers: request.headers,
