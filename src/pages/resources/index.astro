@@ -1,0 +1,45 @@
+---
+// src/pages/resources.astro
+import Layout from "@/layouts/Layout.astro";
+import ResourcesPage from "@/components/marketing/ResourcesPage.jsx";
+import DownloadCTA from "@/components/marketing/DownloadCTA.astro";
+import { createClient } from "@/lib/supabase/server";
+
+const supabase = createClient({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+});
+
+const { data: articles, error: postsError } = await supabase
+    .from("posts")
+    .select(
+        `
+      *,
+      tags (
+      *
+      )
+      `,
+    )
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+const { data: podcasts, error: podcastsError } = await supabase
+    .from("podcast_links")
+    .select(
+        `
+      *
+      `,
+    )
+    .order("created_at", { ascending: false });
+
+console.log({ podcasts, podcastsError });
+---
+
+<Layout title="Resources - Unicorn Landing">
+    <ResourcesPage
+        client:load
+        articles={articles || []}
+        podcasts={podcasts || []}
+    />
+    <DownloadCTA />
+</Layout>

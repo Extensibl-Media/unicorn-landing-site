@@ -1,22 +1,18 @@
-import * as React from 'react'
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import { useForm } from 'react-hook-form';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import * as React from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import { useForm } from "react-hook-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createClient } from '../../lib/supabase/browser';
-import { createPostClient } from '@/lib/supabase/blog';
-import TipTapEditor from './tiptap-editor';
-import { FileUpload } from './file-upload';
+import { createClient } from "../../lib/supabase/browser";
+import { createPostClient, type Post } from "@/lib/supabase/blog";
+import TipTapEditor from "./tiptap-editor";
+import { FileUpload } from "./file-upload";
+import { PUBLIC_SITE_URL } from "astro:env/client";
 
 interface PostFormData {
   title: string;
@@ -26,57 +22,80 @@ interface PostFormData {
   featured_image: string;
 }
 
-export default function PostForm() {
-  const [content, setContent] = React.useState('');
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<PostFormData>();
+export default function PostForm({ post }: { post?: Post }) {
+  const [content, setContent] = React.useState(post?.content || "");
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<PostFormData>({
+    defaultValues: {
+      title: post?.title || "",
+      excerpt: post?.excerpt || "",
+      seo_title: post?.seo_title || "",
+      seo_description: post?.seo_description || "",
+      featured_image: post?.featured_image || "",
+    },
+  });
 
   React.useEffect(() => {
-    console.log({ content })
-  }, [content])
+    console.log(content);
+  }, [content]);
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       Image.configure({
         HTMLAttributes: {
-          class: 'max-w-full rounded-lg',
+          class: "max-w-full rounded-lg",
         },
         allowBase64: true,
       }),
     ],
-    content: '',
+    content: content,
     editorProps: {
       handleDrop: (view, event, slice, moved) => {
-        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+        if (
+          !moved &&
+          event.dataTransfer &&
+          event.dataTransfer.files &&
+          event.dataTransfer.files[0]
+        ) {
           const file = event.dataTransfer.files[0];
 
           (async () => {
-            if (!file.type.includes('image')) return false;
+            if (!file.type.includes("image")) return false;
 
             event.preventDefault();
 
             try {
               const supabase = createClient();
-              const fileExt = file.name.split('.').pop();
+              const fileExt = file.name.split(".").pop();
               const filePath = `upload-${Date.now()}.${fileExt}`;
 
               const { error } = await supabase.storage
-                .from('blog-images')
+                .from("blog-images")
                 .upload(filePath, file);
 
               if (error) throw error;
 
-              const { data: { publicUrl } } = supabase.storage
-                .from('blog-images')
-                .getPublicUrl(filePath);
+              const {
+                data: { publicUrl },
+              } = supabase.storage.from("blog-images").getPublicUrl(filePath);
 
-              const node = view.state.schema.nodes.image.create({ src: publicUrl });
-              const transaction = view.state.tr.insert(view.state.selection.from, node);
+              const node = view.state.schema.nodes.image.create({
+                src: publicUrl,
+              });
+              const transaction = view.state.tr.insert(
+                view.state.selection.from,
+                node,
+              );
               view.dispatch(transaction);
 
               return true;
             } catch (error) {
-              console.error('Error uploading image:', error);
+              console.error("Error uploading image:", error);
               return false;
             }
           })(); // Immediately Invoked Function Expression
@@ -93,12 +112,28 @@ export default function PostForm() {
       const postData = {
         ...data,
         content,
-        status: 'draft' as const
+        status: post && post.status ? post.status : "draft",
       };
-      const post = await createPostClient(postData)
-      window.location.href = '/admin/posts';
+      if (post) {
+        await fetch(`${PUBLIC_SITE_URL}/api/blog/${post.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(postData),
+        });
+      } else {
+        await fetch(`${PUBLIC_SITE_URL}/api/blog`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(postData),
+        });
+      }
+      window.location.href = "/admin/blog";
     } catch (error) {
-      console.error('Error creating post:', error);
+      console.error("Error creating post:", error);
     }
   };
 
@@ -106,7 +141,7 @@ export default function PostForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>New Post</CardTitle>
+          <CardTitle>{post ? "Edit" : "New"} Post</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -114,16 +149,18 @@ export default function PostForm() {
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                {...register('title', { required: true })}
+                {...register("title", { required: true })}
                 className="mt-1"
               />
-              {errors.title && <span className="text-red-500">Title is required</span>}
+              {errors.title && (
+                <span className="text-red-500">Title is required</span>
+              )}
             </div>
 
             <div>
               <Label>Content</Label>
               <div className="min-h-[400px]">
-                <TipTapEditor onChange={setContent} />
+                <TipTapEditor content={content} onChange={setContent} />
               </div>
             </div>
           </div>
@@ -147,7 +184,7 @@ export default function PostForm() {
                 <Label htmlFor="excerpt">Excerpt</Label>
                 <Input
                   id="excerpt"
-                  {...register('excerpt')}
+                  {...register("excerpt")}
                   placeholder="Brief description of the post"
                 />
               </div>
@@ -158,7 +195,7 @@ export default function PostForm() {
                 <Label htmlFor="seo_title">SEO Title</Label>
                 <Input
                   id="seo_title"
-                  {...register('seo_title')}
+                  {...register("seo_title")}
                   placeholder="Title for search engines"
                 />
               </div>
@@ -166,19 +203,19 @@ export default function PostForm() {
                 <Label htmlFor="seo_description">SEO Description</Label>
                 <Input
                   id="seo_description"
-                  {...register('seo_description')}
+                  {...register("seo_description")}
                   placeholder="Description for search engines"
                 />
               </div>
             </TabsContent>
 
             <TabsContent value="featured">
-              <div className='flex gap-4'>
+              <div className="flex gap-4">
                 <div className="space-y-2 flex-1">
                   <Label htmlFor="featured_image">Featured Image URL</Label>
                   <Input
                     id="featured_image"
-                    {...register('featured_image')}
+                    {...register("featured_image")}
                     placeholder="URL of the featured image"
                   />
                 </div>
@@ -186,7 +223,7 @@ export default function PostForm() {
                   <FileUpload
                     isPublic={true}
                     bucketName="blog-images"
-                    onUpload={(url) => setValue('featured_image', url)}
+                    onUpload={(url) => setValue("featured_image", url)}
                   />
                 </div>
               </div>
@@ -199,11 +236,11 @@ export default function PostForm() {
         <Button
           type="button"
           variant="outline"
-          onClick={() => window.location.href = '/admin/posts'}
+          onClick={() => (window.location.href = "/admin/blog")}
         >
           Cancel
         </Button>
-        <Button type="submit">Save Draft</Button>
+        <Button type="submit">Save Post</Button>
       </div>
     </form>
   );

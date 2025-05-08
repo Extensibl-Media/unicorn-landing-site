@@ -1,0 +1,32 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import PostForm from "@/components/admin/blog-form";
+import { PUBLIC_SITE_URL } from "astro:env/client";
+
+const { id } = Astro.params;
+
+const post = await fetch(`${PUBLIC_SITE_URL}/api/blog/${id}`, { method: "GET" })
+    .then(async (res) => {
+        const data = await res.json();
+        console.log(data);
+        return data;
+    })
+    .catch((err) => {
+        console.error(err);
+        return null;
+    });
+
+console.log({ post });
+---
+
+<AdminLayout title="Edit Post">
+    <div class="flex justify-end items-center">
+        <a
+            href="/admin/blog"
+            class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+        >
+            Back to Posts
+        </a>
+    </div>
+    <PostForm client:only post={post} />
+</AdminLayout>

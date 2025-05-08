@@ -78,7 +78,7 @@ export function ClubsTable({
 
   const handlePageChange = React.useCallback(
     (newPage: number) => updateSearchParams(undefined, newPage),
-    []
+    [],
   );
 
   const handleDeleteClick = (clubId: number, clubName: string) => {
@@ -92,7 +92,7 @@ export function ClubsTable({
   const handleDeleteSuccess = () => {
     // Remove the deleted club from the local state to avoid a page refresh
     setLocalClubs((prevClubs) =>
-      prevClubs.filter((club) => club.id !== deleteModal?.clubId)
+      prevClubs.filter((club) => club.id !== deleteModal?.clubId),
     );
     setDeleteModal({ isOpen: false });
   };
@@ -112,7 +112,7 @@ export function ClubsTable({
       </div>
 
       <div className="border rounded-md">
-        <Table>
+        <Table className="bg-white rounded-md">
           <TableHeader>
             <TableRow>
               <TableHead>Club Name</TableHead>

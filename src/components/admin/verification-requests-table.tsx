@@ -277,7 +277,7 @@ export function VerificationRequestsTable({
         </div>
 
         <div className="border rounded-md">
-          <Table>
+          <Table className="bg-white rounded-md">
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>
@@ -336,6 +336,12 @@ export function VerificationRequestsTable({
                           >
                             <Image className="mr-2 h-4 w-4" />
                             View Image
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <a href={`/admin/users/${request.user_id}`}>
+                              <User className="mr-2 h-4 w-4" />
+                              View Profile
+                            </a>
                           </DropdownMenuItem>
 
                           {request.status === "PENDING" && (

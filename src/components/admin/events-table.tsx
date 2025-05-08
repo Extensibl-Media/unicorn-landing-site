@@ -1,4 +1,3 @@
-// src/components/admin/clubs-table.tsx
 import React, { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -88,7 +87,7 @@ export function EventsTable({
       )}
 
       <div className="border rounded-md">
-        <Table>
+        <Table className="bg-white rounded-md">
           <TableHeader>
             <TableRow>
               <TableHead>Event Name</TableHead>

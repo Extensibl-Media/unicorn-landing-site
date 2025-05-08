@@ -6,26 +6,20 @@ import { checkIsadmin } from "@/lib/utils";
 import { MODERATION_IMAGE_URL } from "@/lib/consts";
 
 export const PATCH: APIRoute = async ({ params, request, cookies }) => {
-  const serverClient = createClient({
-    headers: request.headers,
-    cookies,
-  });
-
-  // Check admin permissions using your pattern
-  try {
-    checkIsadmin(serverClient);
-  } catch (error) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: "Permission Denied",
-      }),
-      {
-        status: 403,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
+  // const userLevel = request.headers.get("x-user-level");
+  // if (!userLevel) throw new Error("No user level provided");
+  // if (parseInt(userLevel) < 1000) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       success: false,
+  //       error: "Unauthorized",
+  //     }),
+  //     {
+  //       headers: { "Content-Type": "application/json" },
+  //       status: 401,
+  //     },
+  //   );
+  // }
 
   try {
     const id = params.id;

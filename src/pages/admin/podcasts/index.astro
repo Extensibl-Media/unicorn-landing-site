@@ -1,0 +1,99 @@
+---
+// src/pages/admin/podcasts/index.astro
+import { PodcastsFilters } from "@/components/admin/podcast-filters";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { getAdminPodcasts } from "@/lib/supabase/podcasts";
+import { PodcastsTable } from "@/components/admin/podcasts-table";
+import { Pagination } from "@/components/admin/blog-pagination";
+import { createClient } from "@/lib/supabase/server";
+
+// Get URL params
+const searchParams = Astro.url.searchParams;
+const page = parseInt(searchParams.get("page") || "1");
+const search = searchParams.get("search") || "";
+const channel = searchParams.get("channel") || "all";
+const sortBy = searchParams.get("sortBy") || "release_date";
+const sortOrder = searchParams.get("sortOrder") || "desc";
+const dateFrom = searchParams.get("dateFrom") || undefined;
+const dateTo = searchParams.get("dateTo") || undefined;
+const minDuration = searchParams.get("minDuration") || undefined;
+const maxDuration = searchParams.get("maxDuration") || undefined;
+
+// Fetch podcasts with admin options
+const { podcasts, count, pagination, stats } = await getAdminPodcasts(
+    Astro.request,
+    Astro.cookies,
+    {
+        page,
+        search,
+        channel: channel as any,
+        sortBy: sortBy as any,
+        sortOrder: sortOrder as any,
+        dateFrom,
+        dateTo,
+        minDuration,
+        maxDuration,
+    },
+);
+
+const supabase = createClient({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+});
+---
+
+<AdminLayout title="Manage Podcasts">
+    <div class="flex flex-col gap-4 w-full">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">Podcasts</h1>
+                <p class="text-muted-foreground">
+                    {stats.total} podcasts · {stats.channels} channels
+                </p>
+            </div>
+            <a
+                href="/admin/podcasts/new"
+                class="bg-primary text-primary-foreground px-4 py-2 rounded-md"
+            >
+                New Podcast
+            </a>
+        </div>
+
+        <!-- Search and Filters component -->
+        <PodcastsFilters
+            client:only
+            search={search}
+            channel={channel}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+        />
+
+        <!-- Podcasts Table component -->
+        <PodcastsTable
+            client:only
+            podcasts={podcasts}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+        />
+
+        <!-- Pagination component -->
+        <div class="flex justify-between items-center">
+            <p class="text-sm text-muted-foreground">
+                Showing {podcasts.length} of {count} podcasts
+            </p>
+            <div class="flex gap-2">
+                {
+                    pagination.pages > 1 && (
+                        <Pagination
+                            client:only
+                            currentPage={pagination.current}
+                            totalPages={pagination.pages}
+                        />
+                    )
+                }
+            </div>
+        </div>
+    </div>
+</AdminLayout>

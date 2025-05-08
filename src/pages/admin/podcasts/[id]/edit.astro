@@ -1,0 +1,60 @@
+---
+// src/pages/admin/podcasts/[id]/edit.astro
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import { EditPodcastForm } from "@/components/admin/edit-podcast-form";
+import { getPodcastById, getChannels } from "@/lib/supabase/podcasts";
+
+// Get the podcast ID from the URL
+const { id } = Astro.params;
+if (!id) {
+    return Astro.redirect("/admin/podcasts");
+}
+
+// Fetch the podcast data and channel options
+const podcast = await getPodcastById(
+    Astro.request,
+    Astro.cookies,
+    parseInt(id),
+);
+const channels = await getChannels(Astro.request, Astro.cookies);
+
+// If podcast doesn't exist, redirect to the list page
+if (!podcast) {
+    return Astro.redirect("/admin/podcasts");
+}
+---
+
+<AdminLayout title={`Edit Podcast: ${podcast.title}`}>
+    <div class="space-y-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">Edit Podcast</h1>
+                <p class="text-muted-foreground">
+                    Update podcast details for "{podcast.title}"
+                </p>
+            </div>
+            <div class="flex gap-2">
+                <a
+                    href={`/admin/podcasts/${id}`}
+                    class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+                >
+                    View Details
+                </a>
+                <a
+                    href="/admin/podcasts"
+                    class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+                >
+                    Back to Podcasts
+                </a>
+            </div>
+        </div>
+
+        <div class="border rounded-lg p-6">
+            <EditPodcastForm
+                client:load
+                podcast={podcast}
+                channels={channels}
+            />
+        </div>
+    </div>
+</AdminLayout>

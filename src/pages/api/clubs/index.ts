@@ -5,11 +5,20 @@ import { MIN_ADMIN_LEVEL } from "@/lib/config";
 import { checkIsadmin } from "@/lib/utils";
 
 export const GET: APIRoute = async ({ request, cookies }) => {
-  const serverClient = createClient({
-    headers: request.headers,
-    cookies,
-  });
-  checkIsadmin(serverClient);
+  // const userLevel = request.headers.get("x-user-level");
+  // if (!userLevel) throw new Error("No user level provided");
+  // if (parseInt(userLevel) < 1000) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       success: false,
+  //       error: "Unauthorized",
+  //     }),
+  //     {
+  //       headers: { "Content-Type": "application/json" },
+  //       status: 401,
+  //     },
+  //   );
+  // }
 
   const adminClient = createAdminClient();
 

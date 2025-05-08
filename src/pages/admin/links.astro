@@ -1,0 +1,27 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { createAdminClient } from "@/lib/supabase/admin";
+import LinksTable from "@/components/admin/links-table.tsx";
+
+const client = createAdminClient();
+
+const { data: linksData, error } = await client
+    .from("lib_links")
+    .select("*")
+    .order("order", { ascending: true });
+---
+
+<AdminLayout title="Links">
+    <div class="flex flex-col gap-4">
+        {
+            error && (
+                <div class="alert alert-error">
+                    <div>
+                        <span>{error.message}</span>
+                    </div>
+                </div>
+            )
+        }
+        {!error && <LinksTable links={linksData} client:only />}
+    </div>
+</AdminLayout>

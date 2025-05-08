@@ -1,0 +1,32 @@
+---
+// src/pages/admin/podcasts/new.astro
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { NewPodcastForm } from "@/components/admin/new-podcast-form";
+import { getChannels } from "@/lib/supabase/podcasts";
+
+// Get channel options for the form
+const channels = await getChannels(Astro.request, Astro.cookies);
+---
+
+<AdminLayout title="Add New Podcast">
+    <div class="space-y-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">Add New Podcast</h1>
+                <p class="text-muted-foreground">
+                    Create a new podcast entry in your collection
+                </p>
+            </div>
+            <a
+                href="/admin/podcasts"
+                class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+            >
+                Back to Podcasts
+            </a>
+        </div>
+
+        <div class="border rounded-lg p-6 bg-white">
+            <NewPodcastForm client:load channels={channels} />
+        </div>
+    </div>
+</AdminLayout>

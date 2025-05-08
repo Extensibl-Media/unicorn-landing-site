@@ -155,9 +155,11 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(processedEvent),
-      }).then((response) => {
-        if (!response.ok)
-          return response.json().then((err) => Promise.reject(err));
+      }).then(async (response) => {
+        if (!response.ok) {
+          const err = await response.json();
+          return await Promise.reject(err);
+        }
         return response.json();
       });
 
@@ -176,19 +178,6 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
 
   const handleDeleteSuccess = () => {
     window.location.href = "/admin/events";
-  };
-
-  const getGoogleMapsUrl = () => {
-    if (editedEvent.latitude && editedEvent.longitude) {
-      return `https://www.google.com/maps/search/?api=1&query=${editedEvent.latitude},${editedEvent.longitude}`;
-    } else if (editedEvent.address) {
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        `${editedEvent.address}, ${editedEvent.city || ""}, ${
-          editedEvent.state || ""
-        }`,
-      )}`;
-    }
-    return null;
   };
 
   const formatTimeRange = () => {
@@ -624,19 +613,6 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
                             </p>
                           </div>
                         </div>
-                      )}
-
-                      {getGoogleMapsUrl() && (
-                        <Button variant="outline" className="w-full" asChild>
-                          <a
-                            href={getGoogleMapsUrl() || undefined}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <MapPin className="mr-2 h-4 w-4" />
-                            View on Google Maps
-                          </a>
-                        </Button>
                       )}
                     </div>
                   )}

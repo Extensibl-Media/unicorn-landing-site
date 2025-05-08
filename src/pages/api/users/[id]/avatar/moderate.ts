@@ -7,13 +7,20 @@ import { checkIsadmin } from "@/lib/utils";
 import { MODERATION_IMAGE_URL } from "@/lib/consts";
 
 export const POST: APIRoute = async ({ params, request, cookies }) => {
-  // Check authentication and admin permissions
-  const serverClient = createClient({
-    headers: request.headers,
-    cookies,
-  });
-
-  checkIsadmin(serverClient);
+  // const userLevel = request.headers.get("x-user-level");
+  // if (!userLevel) throw new Error("No user level provided");
+  // if (parseInt(userLevel) < 1000) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       success: false,
+  //       error: "Unauthorized",
+  //     }),
+  //     {
+  //       headers: { "Content-Type": "application/json" },
+  //       status: 401,
+  //     },
+  //   );
+  // }
 
   try {
     const id = params.id;

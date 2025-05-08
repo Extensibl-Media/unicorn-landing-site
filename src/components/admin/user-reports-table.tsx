@@ -258,7 +258,7 @@ export function UserReportsTable({
         </div>
 
         <div className="border rounded-md">
-          <Table>
+          <Table className="bg-white rounded-md">
             <TableHeader>
               <TableRow>
                 <TableHead>Reported User</TableHead>

@@ -1,13 +1,32 @@
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { Search, MoreHorizontal, Eye, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
+import {
+  Search,
+  MoreHorizontal,
+  Eye,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../ui/table";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "../ui/table";
 import type { Database } from "@/types/supabase";
 import { Badge } from "../ui/badge";
 
-export type Ticket = Database['public']['Tables']['support_tickets']['Row']
+export type Ticket = Database["public"]["Tables"]["support_tickets"]["Row"];
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -30,11 +49,13 @@ export function TicketsTable({
     const params = new URLSearchParams(window.location.search);
 
     if (newSearch !== undefined) {
-      newSearch ? params.set('search', newSearch) : params.delete('search');
+      newSearch ? params.set("search", newSearch) : params.delete("search");
     }
 
     if (newPage !== undefined) {
-      newPage > 0 ? params.set('page', newPage.toString()) : params.delete('page');
+      newPage > 0
+        ? params.set("page", newPage.toString())
+        : params.delete("page");
     }
 
     window.location.href = `${window.location.pathname}?${params.toString()}`;
@@ -50,22 +71,26 @@ export function TicketsTable({
     return () => clearTimeout(timeoutId);
   }, [search]);
 
-  const handlePageChange = useCallback((newPage: number) =>
-    updateSearchParams(undefined, newPage), []);
+  const handlePageChange = useCallback(
+    (newPage: number) => updateSearchParams(undefined, newPage),
+    [],
+  );
 
   const getStatusIcon = (status: boolean) => {
     switch (status) {
-      case false: return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-      case true: return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      default: return null;
+      case false:
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case true:
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      default:
+        return null;
     }
   };
 
   const getStatusBadge = (status: boolean) => {
     switch (status) {
-
       case false:
-        return <Badge>In   Progress</Badge>;
+        return <Badge>In Progress</Badge>;
       case true:
         return <Badge>Resolved</Badge>;
       default:
@@ -88,7 +113,7 @@ export function TicketsTable({
       </div>
 
       <div className="border rounded-md">
-        <Table>
+        <Table className="bg-white rounded-md">
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
@@ -124,8 +149,12 @@ export function TicketsTable({
                     </div>
                   </TableCell>
                   {/* <TableCell>{getPriorityBadge(ticket.priority)}</TableCell> */}
-                  <TableCell>{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>{new Date(ticket.updated_at).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(ticket.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(ticket.updated_at).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -135,7 +164,9 @@ export function TicketsTable({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => window.location.href = `/admin/tickets/${ticket.id}`}
+                          onClick={() =>
+                            (window.location.href = `/admin/tickets/${ticket.id}`)
+                          }
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           View Details

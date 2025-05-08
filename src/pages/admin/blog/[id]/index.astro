@@ -1,0 +1,233 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { getPostById } from "@/lib/supabase/blog";
+import { ArrowLeft, Edit, Eye, ExternalLink } from "lucide-astro";
+import { format } from "date-fns";
+
+const { id } = Astro.params;
+if (!id) {
+    return new Response(null, { status: 404 });
+}
+const post = await getPostById(Astro.request, Astro.cookies, id);
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL;
+---
+
+<AdminLayout title={post.title}>
+    <div class="max-w-5xl mx-auto px-4">
+        <!-- Header with actions -->
+        <div
+            class="flex justify-between items-center mb-6 py-4 border-b flex-wrap"
+        >
+            <h1 class="text-2xl font-bold">Title: {post.title}</h1>
+            <div class="flex gap-3">
+                <a
+                    href={`/admin/blog/${id}/edit`}
+                    class="bg-black text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
+                >
+                    <Edit class="w-4 h-4" />
+                    Edit Post
+                </a>
+                <a
+                    href="/admin/blog"
+                    class="px-4 py-2 flex items-center gap-2 transition-colors"
+                >
+                    <ArrowLeft class="w-4 h-4" />
+                    Back to Posts
+                </a>
+            </div>
+        </div>
+
+        <!-- Metadata panels -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <!-- Status panel -->
+            <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                <div class="p-5">
+                    <h2 class="text-sm uppercase text-gray-500 font-semibold">
+                        Status
+                    </h2>
+                    <div class="mt-2">
+                        <span
+                            class={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                                post.status === "published"
+                                    ? "bg-green-100 text-green-800"
+                                    : post.status === "draft"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-blue-100 text-blue-800"
+                            }`}
+                        >
+                            {post.status}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dates panel -->
+            <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                <div class="p-5">
+                    <h2 class="text-sm uppercase text-gray-500 font-semibold">
+                        Dates
+                    </h2>
+                    <div class="mt-2 space-y-1 text-sm">
+                        <p>
+                            <span class="font-medium">Created:</span>
+                            {
+                                post.created_at
+                                    ? format(
+                                          new Date(post.created_at),
+                                          "MMM d, yyyy",
+                                      )
+                                    : "N/A"
+                            }
+                        </p>
+                        <p>
+                            <span class="font-medium">Last updated:</span>
+                            {
+                                post.updated_at
+                                    ? format(
+                                          new Date(post.updated_at),
+                                          "MMM d, yyyy",
+                                      )
+                                    : "N/A"
+                            }
+                        </p>
+                        <p>
+                            <span class="font-medium">Published:</span>
+                            {
+                                post.published_at
+                                    ? format(
+                                          new Date(post.published_at),
+                                          "MMM d, yyyy",
+                                      )
+                                    : "Not published"
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats panel -->
+            <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                <div class="p-5">
+                    <h2 class="text-sm uppercase text-gray-500 font-semibold">
+                        Stats
+                    </h2>
+                    <div class="mt-2 space-y-1 text-sm">
+                        <p>
+                            <span class="font-medium">Views:</span>
+                            {post.views_count || 0}
+                        </p>
+                        <p>
+                            <span class="font-medium">Author ID:</span>
+                            {post.author_id || "Not assigned"}
+                        </p>
+                        <p>
+                            <span class="font-medium">Post ID:</span>
+                            <span class="text-xs">{post.id}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        {
+            post.tags && post.tags.length > 0 && (
+                <div class="mb-8">
+                    <h2 class="text-lg font-medium mb-3">Tags</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {post.tags.map((tag) => (
+                            <span class="bg-pink-500 text-white px-3 py-1 rounded-full text-sm">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )
+        }
+
+        <!-- SEO Preview -->
+        <div class="mb-8">
+            <h2 class="text-lg font-medium mb-3">SEO Preview</h2>
+            <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                <div class="p-5">
+                    <a
+                        href={`${siteUrl}/blog/${post.slug}`}
+                        class="text-blue-600 text-xl mb-1 hover:underline cursor-pointer"
+                    >
+                        {post.seo_title || post.title}
+                    </a>
+                    <p class="text-green-700 text-sm">
+                        {siteUrl}/blog/{post.slug}
+                    </p>
+                    <p class="text-gray-600 text-sm mt-1">
+                        {
+                            post.seo_description ||
+                                post.excerpt ||
+                                "No description available"
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content preview -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-lg font-medium">Content Preview</h2>
+                <div class="flex gap-2">
+                    <button
+                        id="toggle-preview"
+                        class="border border-gray-300 hover:bg-gray-100 px-3 py-1 rounded-md text-sm flex items-center transition-colors"
+                    >
+                        <Eye class="w-4 h-4 mr-1" />
+                        Toggle Preview/Raw
+                    </button>
+                    {
+                        post.status === "published" && post.slug && (
+                            <a
+                                href={`/blog/${post.slug}`}
+                                target="_blank"
+                                class="border border-gray-300 hover:bg-gray-100 px-3 py-1 rounded-md text-sm flex items-center transition-colors"
+                            >
+                                <ExternalLink class="w-4 h-4 mr-1" />
+                                View Live
+                            </a>
+                        )
+                    }
+                </div>
+            </div>
+            <div class="relative">
+                <!-- Preview Mode -->
+                <div
+                    id="preview-mode"
+                    class="prose prose-base max-w-none bg-white p-6 rounded-lg shadow-md"
+                >
+                    <div set:html={post.content} />
+                </div>
+
+                <!-- Raw Mode (hidden by default) -->
+                <div id="raw-mode" class="hidden">
+                    <pre
+                        class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto"><code class="whitespace-pre-wrap">{post.content}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</AdminLayout>
+
+<script>
+    // Toggle between preview and raw HTML modes
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggleBtn = document.getElementById("toggle-preview");
+        const previewMode = document.getElementById("preview-mode");
+        const rawMode = document.getElementById("raw-mode");
+
+        if (toggleBtn && previewMode && rawMode) {
+            toggleBtn.addEventListener("click", () => {
+                previewMode.classList.toggle("hidden");
+                rawMode.classList.toggle("hidden");
+            });
+        }
+    });
+</script>

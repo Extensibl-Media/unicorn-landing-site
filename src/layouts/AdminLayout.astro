@@ -1,21 +1,10 @@
 ---
-// src/layouts/AdminLayout.astro
 import "@/styles/globals.css";
 
 import AdminSidebar from "../components/admin/sidebar";
-// import { createClient } from '../lib/supabase/server';
-
-// // Get user data for display
-// const supabase = createClient(Astro.request, Astro.cookies);
-// const { data: { session } } = await supabase.auth.getSession();
-
-// // Verify admin access
-// if (!session?.user.app_metadata.user_level || session.user.app_metadata.user_level < 1000) {
-//   return Astro.redirect('/admin/login');
-// }
 
 interface Props {
-  title: string;
+    title: string;
 }
 
 const { title } = Astro.props;
@@ -23,22 +12,22 @@ const { title } = Astro.props;
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} - Admin Dashboard</title>
-  </head>
-  <body>
-    <div
-      class="flex flex-col md:flex-row h-screen bg-gray-100 overflow-hidden overflow-y-scroll"
-    >
-      <AdminSidebar client:only />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{title} - Admin Dashboard</title>
+    </head>
+    <body>
+        <div
+            class="flex flex-col md:flex-row h-screen bg-gray-100 overflow-hidden overflow-y-scroll"
+        >
+            <AdminSidebar client:only />
 
-      <div class="flex-1 flex flex-col">
-        <main class="flex-1 overflow-y-auto p-6">
-          <slot />
-        </main>
-      </div>
-    </div>
-  </body>
+            <div class="flex-1 flex flex-col">
+                <main class="flex-1 overflow-y-auto p-6">
+                    <slot />
+                </main>
+            </div>
+        </div>
+    </body>
 </html>

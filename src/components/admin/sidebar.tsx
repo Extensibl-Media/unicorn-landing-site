@@ -22,6 +22,8 @@ import {
   MessageCircleQuestion,
   BadgeCheck,
   TriangleAlert,
+  Link,
+  Podcast,
 } from "lucide-react";
 import { createClient } from "../../lib/supabase/browser";
 
@@ -43,7 +45,9 @@ export default function AdminSidebar() {
     },
     { icon: Theater, label: "Clubs", href: "/admin/clubs" },
     { icon: PartyPopper, label: "Events", href: "/admin/events" },
-    // { icon: Newspaper, label: "Blog Posts", href: "/admin/blog" },
+    { icon: Newspaper, label: "Blog Posts", href: "/admin/blog" },
+    { icon: Podcast, label: "Podcasts", href: "/admin/podcasts" },
+    { icon: Link, label: "Links Page", href: "/admin/links" },
     {
       icon: Images,
       label: "Content Moderation",
