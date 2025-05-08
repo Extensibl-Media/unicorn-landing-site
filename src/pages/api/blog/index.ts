@@ -1,8 +1,6 @@
-import { addCorsHeaders, corsHeaders } from "@/lib/consts";
+import { corsHeaders } from "@/lib/consts";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post } from "@/lib/supabase/blog";
-import { createClient } from "@/lib/supabase/server";
-import { checkIsadmin } from "@/lib/utils";
 import type { APIRoute } from "astro";
 
 export const GET = async () => {
@@ -10,6 +8,8 @@ export const GET = async () => {
 };
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  const headers = new Headers(corsHeaders);
+  headers.append("Content-Type", "application/json");
   // const userLevel = request.headers.get("x-user-level");
   // if (!userLevel) throw new Error("No user level provided");
   // if (parseInt(userLevel) < 1000) {
@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers,
       },
     );
   } catch (err) {
@@ -51,12 +51,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     return new Response(
       JSON.stringify({
         success: false,
-        message: err.message,
+        message: (err as Error).message,
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers,
       },
     );
   }
 };
+
+export async function OPTIONS() {
+  // Return a response with CORS headers
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
