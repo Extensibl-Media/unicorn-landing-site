@@ -33,6 +33,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .single();
 
     if (error) throw error;
+
+    console.log({ data, error });
     return new Response(
       JSON.stringify({
         success: true,
@@ -44,6 +46,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       },
     );
   } catch (err) {
+    console.error(err);
     return new Response(
       JSON.stringify({
         success: false,
