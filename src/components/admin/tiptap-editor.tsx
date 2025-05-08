@@ -19,7 +19,7 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -48,8 +48,6 @@ const CustomLink = Link.configure({
   autolink: true,
   HTMLAttributes: {
     class: "custom-link",
-    target: "_blank",
-    rel: "noopener noreferrer",
   },
 });
 
@@ -66,6 +64,13 @@ export default function TipTapEditor({
   const [selectedText, setSelectedText] = useState("");
   const [useCustomText, setUseCustomText] = useState(false);
   const [hasSelection, setHasSelection] = useState(false);
+  const [isExternalLink, setExternalLink] = useState(false);
+
+  useEffect(() => {
+    if (!showLinkModal) {
+      setExternalLink(false);
+    }
+  }, [showLinkModal]);
 
   const editor = useEditor({
     injectCSS: true,
@@ -74,6 +79,11 @@ export default function TipTapEditor({
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
     },
+    editorProps: {
+      attributes: {
+        class: "focus:outline-none",
+      },
+    },
   });
 
   if (!editor) {
@@ -81,6 +91,7 @@ export default function TipTapEditor({
   }
 
   const handleLinkSubmit = (e) => {
+    e.stopPropagation();
     e.preventDefault(); // Prevent form submission and page reload
 
     const url = linkInputRef.current.value;
@@ -100,7 +111,13 @@ export default function TipTapEditor({
               marks: [
                 {
                   type: "link",
-                  attrs: { href: url },
+                  attrs: isExternalLink
+                    ? {
+                        href: url,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      }
+                    : { href: url, target: null, rel: null },
                 },
               ],
             })
@@ -111,7 +128,11 @@ export default function TipTapEditor({
             .chain()
             .focus()
             .extendMarkRange("link")
-            .setLink({ href: url })
+            .setLink(
+              isExternalLink
+                ? { href: url, target: "_blank", rel: "noopener noreferrer" }
+                : { href: url, target: null, rel: null },
+            )
             .run();
         }
       } else {
@@ -126,7 +147,9 @@ export default function TipTapEditor({
             marks: [
               {
                 type: "link",
-                attrs: { href: url },
+                attrs: isExternalLink
+                  ? { href: url, target: "_blank", rel: "noopener noreferrer" }
+                  : { href: url, target: null, rel: null },
               },
             ],
           })
@@ -137,6 +160,7 @@ export default function TipTapEditor({
     // Close the modal
     setShowLinkModal(false);
     setUseCustomText(false);
+    setExternalLink(false);
   };
 
   const addLink = () => {
@@ -349,6 +373,19 @@ export default function TipTapEditor({
                   />
                 </div>
               )}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="use-external-link"
+                  checked={isExternalLink}
+                  onCheckedChange={setExternalLink}
+                />
+                <label
+                  htmlFor="use-external-link"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  External Link?
+                </label>
+              </div>
             </div>
             <DialogFooter>
               <Button
@@ -364,8 +401,17 @@ export default function TipTapEditor({
         </DialogContent>
       </Dialog>
 
-      <div className="px-4 min-h-[400px] prose max-w-none h-full">
-        <EditorContent editor={editor} />
+      <div className="px-4 min-h-[200px] prose max-w-none h-full flex flex-col">
+        <EditorContent
+          editor={editor}
+          style={{
+            outline: "none",
+            flex: 1,
+            // display: "flex",
+            // alignItems: "stretch",
+            width: "100%",
+          }}
+        />
       </div>
     </div>
   );

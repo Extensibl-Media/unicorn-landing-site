@@ -5,16 +5,23 @@ import LinksTable from "@/components/admin/links-table.tsx";
 
 const client = createAdminClient();
 
-const { data: linksData } = await client
+const { data: linksData, error } = await client
     .from("lib_links")
     .select("*")
     .order("order", { ascending: true });
-
-console.log({ linksData });
 ---
 
 <AdminLayout title="Links">
     <div class="flex flex-col gap-4">
-        <LinksTable links={linksData} client:load />
+        {
+            error && (
+                <div class="alert alert-error">
+                    <div>
+                        <span>{error.message}</span>
+                    </div>
+                </div>
+            )
+        }
+        {!error && <LinksTable links={linksData} client:only />}
     </div>
 </AdminLayout>

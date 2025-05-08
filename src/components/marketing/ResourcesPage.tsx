@@ -12,182 +12,183 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
+import type { Post, Tag } from "@/lib/supabase/blog";
+import type { Podcast } from "@/lib/supabase/podcasts";
+
+type ArticleResource = Post & {
+  category: "articles";
+  tags?: Tag[];
+  excerpt?: string;
+  featured_image?: string;
+  slug: string;
+};
+
+type PodcastResource = Podcast & {
+  category: "podcasts";
+  description?: string;
+};
+type Resource = ArticleResource | PodcastResource;
 
 const CATEGORIES = [
   { id: "all", label: "All Resources" },
   { id: "articles", label: "Articles" },
-  { id: "podcasts", label: "Podcast Episodes" },
+  { id: "podcasts", label: "Podcasts" },
 ];
 
-// Sample data - replace with your actual data fetching
-const RESOURCES = [
-  {
-    id: 1,
-    title: "Getting Started with Astro",
-    description:
-      "Learn the basics of Astro and how to set up your first project.",
-    date: "April 15, 2025",
-    category: "articles",
-    tags: ["astro", "beginner"],
-    image: "/api/placeholder/400/250",
-    author: "Jane Smith",
-  },
-  {
-    id: 2,
-    title: "Tailwind Tips & Tricks",
-    description:
-      "Advanced techniques for styling your Astro site with Tailwind.",
-    date: "April 10, 2025",
-    category: "articles",
-    tags: ["tailwind", "css", "styling"],
-    image: "/api/placeholder/400/250",
-    author: "Mark Johnson",
-  },
-  {
-    id: 3,
-    title: "EP 42: The Future of Web Development",
-    description:
-      "A discussion about upcoming trends in web development for 2025.",
-    date: "April 8, 2025",
-    category: "podcasts",
-    tags: ["podcast", "trends"],
-    duration: "45 min",
-    image: "/api/placeholder/400/250",
-    author: "Tech Talk Podcast",
-  },
-  {
-    id: 4,
-    title: "Building Accessible UI Components",
-    description: "Learn how to create inclusive interfaces for all users.",
-    date: "April 5, 2025",
-    category: "podcasts",
-    tags: ["accessibility", "ui", "react"],
-    duration: "32 min",
-    image: "/api/placeholder/400/250",
-    author: "WebDev Channel",
-  },
-  {
-    id: 5,
-    title: "Complete Guide to Astro Islands",
-    description:
-      "Understand how Astro islands work and when to use them effectively.",
-    date: "March 28, 2025",
-    category: "articles",
-    tags: ["astro", "advanced", "performance"],
-    image: "/api/placeholder/400/250",
-    author: "Alex Rivera",
-  },
-  {
-    id: 6,
-    title: "EP 43: Integrating React in Astro",
-    description:
-      "How to use React components effectively within your Astro project.",
-    date: "March 25, 2025",
-    category: "podcasts",
-    tags: ["podcast", "react", "astro"],
-    duration: "38 min",
-    image: "/api/placeholder/400/250",
-    author: "Tech Talk Podcast",
-  },
-];
-
-export default function ResourcesPage({ articles }) {
+export default function ResourcesPage({
+  articles,
+  podcasts,
+}: {
+  articles: Post[];
+  podcasts: Podcast[];
+}) {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const resources = [
-    ...articles.map((article) => ({ ...article, category: "articles" })),
+  const resources: Resource[] = [
+    ...articles.map(
+      (article: Post) =>
+        ({ ...article, category: "articles" }) as ArticleResource,
+    ),
+    ...podcasts.map(
+      (podcast: Podcast) =>
+        ({ ...podcast, category: "podcasts" }) as PodcastResource,
+    ),
   ];
 
-  const filteredResources = resources.filter((resource) => {
+  const filteredResources = resources.filter((resource: Resource) => {
     // Filter by category
     if (activeCategory !== "all" && resource.category !== activeCategory) {
       return false;
     }
 
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        resource.title?.toLowerCase().includes(query) ||
-        resource.excerpt?.toLowerCase().includes(query) ||
-        resource.tags.some((tag) => tag.name.toLowerCase().includes(query))
-      );
-    }
-
-    return true;
-  });
-
-  // Function to render the appropriate resource card based on category
-  const renderResourceCard = (resource) => {
-    const articleCard = (
-      <Card className="overflow-hidden border border-pink-100 hover:border-pink-300 transition-all rounded-xl shadow-sm hover:shadow-md">
-        <div className="relative h-48 overflow-hidden rounded-t-xl">
-          <img
-            src={resource.featured_image}
-            alt={resource.title}
-            className="object-cover w-full h-full"
-          />
-          <Badge className="absolute top-2 right-2 bg-pink-500 text-white hover:bg-pink-600">
-            Article
-          </Badge>
-        </div>
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
-            <div className="text-xs text-gray-500">
-              {format(new Date(resource.created_at), "PPP")}
-            </div>
-          </div>
-          <CardTitle className="text-lg font-bold text-gray-800">
-            {resource.title}
-          </CardTitle>
-          <CardDescription className="text-sm text-gray-600">
-            By Unicorn Landing
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pb-2">
-          <p className="text-sm text-gray-600">{resource.excerpt}</p>
-        </CardContent>
-        <CardFooter className="pt-0 flex flex-wrap gap-1">
-          {resource.tags?.map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              className="text-xs bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100"
-            >
-              {tag.name}
-            </Badge>
-          ))}
-        </CardFooter>
-      </Card>
-    );
-
-    // You could customize the card based on resource type
+    // Type narrowing in each case
     switch (resource.category) {
       case "articles":
+        // TypeScript knows resource is ArticleResource here
+        return (
+          resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          resource.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          resource.tags?.some((tag) =>
+            tag.name.toLowerCase().includes(searchQuery.toLowerCase()),
+          )
+        );
+      case "podcasts":
+        // TypeScript knows resource is PodcastResource here
+        return (
+          resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          resource.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+        );
+      default:
+        // This should be unreachable with a proper discriminated union
+        return false;
+    }
+  });
+
+  const renderResourceCard = (resource: Resource) => {
+    switch (resource.category) {
+      case "articles": {
+        // TypeScript knows resource is ArticleResource here
         return (
           <a
             href={`/resources/articles/${resource.slug}`}
             key={resource.id}
             className="group"
           >
-            {articleCard}
+            <Card className="overflow-hidden border border-pink-100 hover:border-pink-300 transition-all rounded-xl shadow-sm hover:shadow-md">
+              <div className="relative h-48 overflow-hidden rounded-t-xl">
+                <img
+                  src={resource.featured_image}
+                  alt={resource.title}
+                  className="object-cover w-full h-full"
+                />
+                <Badge className="absolute top-2 right-2 bg-pink-500 text-white hover:bg-pink-600">
+                  Article
+                </Badge>
+              </div>
+              <CardHeader className="pb-2">
+                {resource.created_at && (
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs text-gray-500">
+                      {format(new Date(resource.created_at), "PPP")}
+                    </div>
+                  </div>
+                )}
+                <CardTitle className="text-lg font-bold text-gray-800">
+                  {resource.title}
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-600">
+                  By Unicorn Landing
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <p className="text-sm text-gray-600">{resource.excerpt}</p>
+              </CardContent>
+              <CardFooter className="pt-0 flex flex-wrap gap-1">
+                {resource.tags?.map((tag: Tag) => (
+                  <Badge
+                    key={tag.id}
+                    variant="outline"
+                    className="text-xs bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100"
+                  >
+                    {tag.name}
+                  </Badge>
+                ))}
+              </CardFooter>
+            </Card>
           </a>
         );
-      case "podcasts":
+      }
+      case "podcasts": {
+        // TypeScript knows resource is PodcastResource here
         return (
-          <div key={resource.id} className="group">
-            {/* {commonCard} */}
-          </div>
+          <a
+            href={resource.external_url || `#podcast-${resource.id}`}
+            key={resource.id}
+            className="group"
+          >
+            <Card className="overflow-hidden border border-purple-100 hover:border-purple-300 transition-all rounded-xl shadow-sm hover:shadow-md">
+              <div className="relative h-48 overflow-hidden rounded-t-xl">
+                <img
+                  src={resource.image_url || "/podcast-placeholder.jpg"}
+                  alt={resource.title}
+                  className="object-cover w-full h-full"
+                />
+                <Badge className="absolute top-2 right-2 bg-purple-500 text-white hover:bg-purple-600">
+                  Podcast
+                </Badge>
+              </div>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <div className="text-xs text-gray-500">
+                    {resource.release_date
+                      ? format(new Date(resource.release_date), "PPP")
+                      : "No release date"}
+                  </div>
+                </div>
+                <CardTitle className="text-lg font-bold text-gray-800">
+                  {resource.title}
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-600">
+                  {resource.channel_name || "Unicorn Landing"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <p className="text-sm text-gray-600">
+                  {resource.description || resource.subtitle}
+                </p>
+              </CardContent>
+            </Card>
+          </a>
         );
-      // case "videos":
-      //   return (
-      //     <div key={resource.id} className="group">
-      //       {commonCard}
-      //     </div>
-      //   );
-      default:
+      }
+      default: {
+        // Exhaustiveness check - this should never happen with a proper discriminated union
+        const _exhaustiveCheck: never = resource;
         return null;
+      }
     }
   };
 

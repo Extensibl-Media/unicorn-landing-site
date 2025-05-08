@@ -127,7 +127,7 @@ export function UsersTable({
       </div>
 
       <div className="border rounded-md ">
-        <Table>
+        <Table className="bg-white rounded-md">
           <TableHeader>
             <TableRow>
               <TableHead>Profile Image</TableHead>

@@ -8,7 +8,10 @@ const client = createClient({
     cookies: Astro.cookies,
 });
 
-const { data: linksData } = await client.from("lib_links").select("*");
+const { data: linksData } = await client
+    .from("lib_links")
+    .select("*")
+    .order("order", { ascending: true });
 // console.log({ linksData });
 ---
 
@@ -32,7 +35,7 @@ const { data: linksData } = await client.from("lib_links").select("*");
         />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="generator" content={Astro.generator} />
-        <title>Unicorn Landing</title>
+        <title>Links - Unicorn Landing</title>
         <meta
             name="description"
             content="Women connecting with women in the Lifestyle. Download the app from your favorite app store and join the community."
@@ -136,8 +139,31 @@ const { data: linksData } = await client.from("lib_links").select("*");
                     </p>
                     <p class="text-xs md:text-base">Winner of 2 ASN Awards</p>
                 </div>
+                <div class="flex flex-col w-full gap-4">
+                    {
+                        linksData &&
+                            linksData.map((link) => (
+                                <a
+                                    href={link.url}
+                                    target="_blank"
+                                    class="p-4 bg-[rgb(250,_39,_152)] text-white rounded-full w-full shadow-lg hover:bg-pink-600 transition duration-200 ease-in-out text-center text-lg"
+                                    rel="noopener noreferrer"
+                                >
+                                    <div class="flex flex-col items-center">
+                                        <span class="block capitalize">
+                                            {link.title}
+                                        </span>
+                                        {link.description && (
+                                            <span class="text-xs block">
+                                                {link.description}
+                                            </span>
+                                        )}
+                                    </div>
+                                </a>
+                            ))
+                    }
+                </div>
             </div>
-            <div></div>
         </section>
     </body>
 </html>

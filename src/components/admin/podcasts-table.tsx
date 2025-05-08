@@ -20,16 +20,13 @@ import {
   Eye,
   Trash,
   ArrowUpRightSquare,
-  SquareCheckBig,
-  Rocket,
-  Slash,
-  SquareSlash,
+  Clock,
+  Calendar,
   AlertCircle,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "../ui/button";
-import { updatePostClient, type Post } from "@/lib/supabase/blog";
-import { cn } from "@/lib/utils";
+import { type Podcast } from "@/lib/supabase/podcasts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,60 +38,69 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface PostsTableProps {
-  posts: Post[];
+interface PodcastsTableProps {
+  podcasts: Podcast[];
   sortBy: string;
   sortOrder: string;
 }
 
-export function PostsTable({
-  posts: initialPosts,
+export function PodcastsTable({
+  podcasts: initialPodcasts,
   sortBy,
   sortOrder,
-}: PostsTableProps) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+}: PodcastsTableProps) {
+  const [podcasts, setPodcasts] = useState<Podcast[]>(initialPodcasts);
+  const [selectedPodcast, setSelectedPodcast] = useState<Podcast | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleDeleteClick = (post: Post) => {
-    setSelectedPost(post);
+  // Function to format duration from seconds to mm:ss format
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  const handleDeleteClick = (podcast: Podcast) => {
+    setSelectedPodcast(podcast);
     setIsDeleteDialogOpen(true);
   };
 
   const handleDelete = async () => {
-    if (!selectedPost) return;
+    if (!selectedPodcast) return;
 
     setIsSubmitting(true);
     setErrorMessage(null);
     setSuccessMessage(null);
 
     try {
-      const response = await fetch(`/api/blog/${selectedPost.id}`, {
+      const response = await fetch(`/api/podcasts/${selectedPodcast.id}`, {
         method: "DELETE",
       });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to delete post");
+        throw new Error(result.error || "Failed to delete podcast");
       }
 
-      // Update local state to remove the deleted post
-      setPosts(posts.filter((post) => post.id !== selectedPost.id));
+      // Update local state to remove the deleted podcast
+      setPodcasts(
+        podcasts.filter((podcast) => podcast.id !== selectedPodcast.id),
+      );
 
       // Show success message
       setSuccessMessage(
-        `"${selectedPost.title}" has been removed successfully.`,
+        `"${selectedPodcast.title}" has been removed successfully.`,
       );
 
       // Close the dialog
       setIsDeleteDialogOpen(false);
-      setSelectedPost(null);
+      setSelectedPodcast(null);
     } catch (err) {
-      console.error("Error deleting post:", err);
+      console.error("Error deleting podcast:", err);
       setErrorMessage(
         err instanceof Error ? err.message : "An unknown error occurred",
       );
@@ -122,50 +128,52 @@ export function PostsTable({
         </div>
       )}
 
-      <div className="border rounded-md">
+      <div className="border rounded-lg">
         <Table className="bg-white rounded-md">
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead>Last Updated</TableHead>
+              <TableHead>Channel</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Release Date</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {posts.map((post) => (
-              <TableRow key={post.id}>
+            {podcasts.map((podcast) => (
+              <TableRow key={podcast.id}>
                 <TableCell>
                   <div>
-                    <p className="font-medium">{post.title}</p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    className={cn(
-                      post.status === "published" && "bg-green-500",
-                      post.status === "draft" && "bg-yellow-500",
-                      post.status === "archived" && "bg-gray-500",
+                    <p className="font-medium">{podcast.title}</p>
+                    {podcast.subtitle && (
+                      <p className="text-sm text-muted-foreground">
+                        {podcast.subtitle}
+                      </p>
                     )}
-                  >
-                    {post.status}
-                  </Badge>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex gap-1 flex-wrap">
-                    {post?.tags?.map((tag) => (
-                      <Badge key={tag.id} variant="outline">
-                        {tag.name}
-                      </Badge>
-                    ))}
                   </div>
                 </TableCell>
                 <TableCell>
-                  {formatDistanceToNow(new Date(post.updated_at as string), {
-                    addSuffix: true,
-                  })}
+                  <Badge variant="outline">{podcast.channel_name}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    {formatDuration(podcast.duration)}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {podcast.release_date ? (
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {formatDistanceToNow(new Date(podcast.release_date), {
+                        addSuffix: true,
+                      })}
+                    </div>
+                  ) : (
+                    <Badge variant="outline" className="bg-yellow-100">
+                      Unreleased
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -175,28 +183,9 @@ export function PostsTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {post.status === "published" ? (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            updatePostClient(post.id, { status: "draft" })
-                          }
-                        >
-                          <SquareSlash className="mr-2 h-4 w-4" />
-                          Unpublish
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            updatePostClient(post.id, { status: "published" })
-                          }
-                        >
-                          <Rocket className="mr-2 h-4 w-4" />
-                          Publish
-                        </DropdownMenuItem>
-                      )}
                       <DropdownMenuItem
                         onClick={() =>
-                          (window.location.href = `/admin/blog/${post.id}/edit`)
+                          (window.location.href = `/admin/podcasts/${podcast.id}/edit`)
                         }
                       >
                         <Pencil className="mr-2 h-4 w-4" />
@@ -204,25 +193,23 @@ export function PostsTable({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
-                          (window.location.href = `/admin/blog/${post.id}`)
+                          (window.location.href = `/admin/podcasts/${podcast.id}`)
                         }
                       >
                         <Eye className="mr-2 h-4 w-4" />
                         Preview
                       </DropdownMenuItem>
-                      {post.status === "published" && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            (window.location.href = `/blog/${post.slug}`)
-                          }
-                        >
-                          <ArrowUpRightSquare className="mr-2 h-4 w-4" />
-                          View Live
-                        </DropdownMenuItem>
-                      )}
+                      <DropdownMenuItem
+                        onClick={() =>
+                          window.open(podcast.external_url, "_blank")
+                        }
+                      >
+                        <ArrowUpRightSquare className="mr-2 h-4 w-4" />
+                        Listen External
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-red-600"
-                        onClick={() => handleDeleteClick(post)}
+                        onClick={() => handleDeleteClick(podcast)}
                       >
                         <Trash className="mr-2 h-4 w-4" />
                         Delete
@@ -244,11 +231,11 @@ export function PostsTable({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you sure you want to delete this post?
+              Are you sure you want to delete this podcast?
             </AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              post "{selectedPost?.title}" and remove all associated data.
+              podcast "{selectedPodcast?.title}" and remove all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -260,7 +247,7 @@ export function PostsTable({
               disabled={isSubmitting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isSubmitting ? "Deleting..." : "Delete Post"}
+              {isSubmitting ? "Deleting..." : "Delete Podcast"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

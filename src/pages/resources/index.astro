@@ -23,14 +23,23 @@ const { data: articles, error: postsError } = await supabase
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
-console.log({ articles });
+const { data: podcasts, error: podcastsError } = await supabase
+    .from("podcast_links")
+    .select(
+        `
+      *
+      `,
+    )
+    .order("created_at", { ascending: false });
 
-// You can fetch your content from your CMS or API here
-// Example:
-// const podcasts = await fetch('https://your-api.com/podcasts').then(res => res.json());
+console.log({ podcasts, podcastsError });
 ---
 
-<Layout title="Resources | Unicorn Landing">
-    <ResourcesPage client:load articles={articles} />
+<Layout title="Resources - Unicorn Landing">
+    <ResourcesPage
+        client:load
+        articles={articles || []}
+        podcasts={podcasts || []}
+    />
     <DownloadCTA />
 </Layout>
