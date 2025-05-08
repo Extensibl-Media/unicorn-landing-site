@@ -1,3 +1,4 @@
+import { corsHeaders } from "@/lib/consts";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Podcast } from "@/lib/supabase/podcasts";
 import type { APIRoute } from "astro";
@@ -20,6 +21,10 @@ export const POST: APIRoute = async ({ request }) => {
         success: true,
         data,
       }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      },
     );
   } catch (err) {
     return new Response(
@@ -27,6 +32,10 @@ export const POST: APIRoute = async ({ request }) => {
         success: false,
         error: err.message,
       }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      },
     );
   }
 };

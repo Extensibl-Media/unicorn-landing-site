@@ -1,3 +1,4 @@
+import { addCorsHeaders, corsHeaders } from "@/lib/consts";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post } from "@/lib/supabase/blog";
 import { createClient } from "@/lib/supabase/server";
@@ -42,7 +43,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...corsHeaders },
       },
     );
   } catch (err) {
@@ -54,7 +55,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...corsHeaders },
       },
     );
   }
