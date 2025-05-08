@@ -43,6 +43,7 @@ interface NewPodcastFormProps {
 
 export function NewPodcastForm({ channels }: NewPodcastFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
@@ -60,8 +61,10 @@ export function NewPodcastForm({ channels }: NewPodcastFormProps) {
   // Form submission handler
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
+    setError(null);
+
     try {
-      const response = await fetch(`${PUBLIC_SITE_URL}/api/podcasts`, {
+      const response = await fetch(`/admin/podcasts/new`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,26 +82,18 @@ export function NewPodcastForm({ channels }: NewPodcastFormProps) {
         }),
       });
 
-      // toast({
-      //   title: "Podcast Created",
-      //   description: `Successfully created ${values.title}`,
-      //   variant: "default",
-      // });
-      //
       if (!response.ok) {
-        console.error("Failed to create podcast");
-        return;
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create podcast");
       }
 
-      // Redirect to the podcast list
+      // Redirect will be handled by the server
       window.location.href = "/admin/podcasts";
     } catch (error) {
       console.error("Error creating podcast:", error);
-      // toast({
-      //   title: "Error",
-      //   description: "Failed to create podcast. Please try again.",
-      //   variant: "destructive",
-      // });
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -107,6 +102,11 @@ export function NewPodcastForm({ channels }: NewPodcastFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
           <FormField

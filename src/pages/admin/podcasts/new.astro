@@ -3,9 +3,61 @@
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { NewPodcastForm } from "@/components/admin/new-podcast-form";
 import { getChannels } from "@/lib/supabase/podcasts";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // Get channel options for the form
 const channels = await getChannels(Astro.request, Astro.cookies);
+
+// Handle form submission
+if (Astro.request.method === "POST") {
+    try {
+        // Parse the JSON body from the request
+        const podcastData = await Astro.request.json();
+
+        // Create Supabase client
+        const supabase = createAdminClient();
+
+        // Insert podcast into database
+        const { data, error } = await supabase.from("podcast_links").insert({
+            title: podcastData.title,
+            subtitle: podcastData.subtitle,
+            channel_name: podcastData.channel_name,
+            external_url: podcastData.external_url,
+            image_url: podcastData.image_url,
+            duration: podcastData.duration,
+            release_date: podcastData.release_date,
+            created_at: new Date().toISOString(),
+        });
+
+        if (error) {
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: error.message,
+                }),
+                {
+                    status: 500,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        }
+
+        // Redirect on success
+        return Astro.redirect("/admin/podcasts");
+    } catch (error) {
+        console.error("Error processing form:", error);
+        return new Response(
+            JSON.stringify({
+                success: false,
+                message: error.message || "Failed to create podcast",
+            }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            },
+        );
+    }
+}
 ---
 
 <AdminLayout title="Add New Podcast">
@@ -17,16 +69,12 @@ const channels = await getChannels(Astro.request, Astro.cookies);
                     Create a new podcast entry in your collection
                 </p>
             </div>
-            <a
-                href="/admin/podcasts"
-                class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
-            >
-                Back to Podcasts
-            </a>
-        </div>
 
-        <div class="border rounded-lg p-6 bg-white">
-            <NewPodcastForm client:load channels={channels} />
+            href="/admin/podcasts" class="bg-secondary text-secondary-foreground
+            px-4 py-2 rounded-md" > Back to Podcasts
         </div>
+    </div>
+    <div class="border rounded-lg p-6 bg-white">
+        <NewPodcastForm client:load channels={channels} />
     </div>
 </AdminLayout>

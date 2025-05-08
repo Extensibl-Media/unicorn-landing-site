@@ -123,13 +123,18 @@ export default function PostForm({ post }: { post?: Post }) {
           body: JSON.stringify(postData),
         });
       } else {
-        await fetch(`${PUBLIC_SITE_URL}/api/blog`, {
+        const response = await fetch(`/admin/blog/new`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(postData),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to create post");
+        }
       }
       window.location.href = "/admin/blog";
     } catch (error) {
