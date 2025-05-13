@@ -1,3 +1,4 @@
+export const prerender = false;
 import type { APIRoute } from "astro";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -13,20 +14,24 @@ import {
 } from "date-fns";
 
 export const GET: APIRoute = async ({ locals, request, cookies }) => {
-  // const userLevel = request.headers.get("x-user-level");
-  // if (!userLevel) throw new Error("No user level provided");
-  // if (parseInt(userLevel) < 1000) {
-  //   return new Response(
-  //     JSON.stringify({
-  //       success: false,
-  //       error: "Unauthorized",
-  //     }),
-  //     {
-  //       headers: { "Content-Type": "application/json" },
-  //       status: 401,
-  //     },
-  //   );
-  // }
+  const supabase = createClient({ headers: request.headers, cookies });
+  const { data: user } = await supabase.auth.getUser();
+
+  const userLevel = user.user?.app_metadata.user_level;
+  // Check if user is admin
+  if (!userLevel) throw new Error("No user level provided");
+  if (userLevel < 1000) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Unauthorized",
+      }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 401,
+      },
+    );
+  }
 
   // Current date
   const currentDate = new Date();

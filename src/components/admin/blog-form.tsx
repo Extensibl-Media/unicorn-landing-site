@@ -115,7 +115,7 @@ export default function PostForm({ post }: { post?: Post }) {
         status: post && post.status ? post.status : "draft",
       };
       if (post) {
-        await fetch(`${PUBLIC_SITE_URL}/api/blog/${post.id}`, {
+        await fetch(`/admin/blog/${post.id}/edit`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",

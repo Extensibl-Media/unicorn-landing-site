@@ -2,6 +2,7 @@
 // src/pages/admin/podcasts/[id]/edit.astro
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
 import { EditPodcastForm } from "@/components/admin/edit-podcast-form";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getPodcastById, getChannels } from "@/lib/supabase/podcasts";
 
 // Get the podcast ID from the URL
@@ -21,6 +22,56 @@ const channels = await getChannels(Astro.request, Astro.cookies);
 // If podcast doesn't exist, redirect to the list page
 if (!podcast) {
     return Astro.redirect("/admin/podcasts");
+}
+
+if (Astro.request.method === "PATCH") {
+    try {
+        // Parse the JSON body from the request
+        const podcastData = await Astro.request.json();
+
+        // Create Supabase client
+        const supabase = createAdminClient();
+
+        // Insert podcast into database
+        const { data, error } = await supabase.from("podcast_links").update({
+            title: podcastData.title,
+            subtitle: podcastData.subtitle,
+            channel_name: podcastData.channel_name,
+            external_url: podcastData.external_url,
+            image_url: podcastData.image_url,
+            duration: podcastData.duration,
+            release_date: podcastData.release_date,
+            created_at: new Date().toISOString(),
+        });
+
+        if (error) {
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: error.message,
+                }),
+                {
+                    status: 500,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        }
+
+        // Redirect on success
+        return Astro.redirect("/admin/podcasts");
+    } catch (error) {
+        console.error("Error processing form:", error);
+        return new Response(
+            JSON.stringify({
+                success: false,
+                message: error.message || "Failed to create podcast",
+            }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            },
+        );
+    }
 }
 ---
 

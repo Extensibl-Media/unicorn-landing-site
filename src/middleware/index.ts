@@ -5,7 +5,6 @@ const MIN_ADMIN_LEVEL = 1000;
 
 export const onRequest = defineMiddleware(
   async ({ request, cookies, redirect, locals }, next) => {
-    console.log("checking auth");
     const url = new URL(request.url);
 
     // Check if we're in an admin route

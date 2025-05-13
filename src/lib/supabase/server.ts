@@ -11,7 +11,6 @@ import {
 } from "astro:env/client";
 
 export const cookieOptions: CookieOptionsWithName = {
-  // Don't hardcode the cookie name as it can change with project ID
   path: "/",
   secure: process.env.NODE_ENV === "production",
   httpOnly: true,
@@ -27,11 +26,6 @@ export const createClient = (context: {
     PUBLIC_SUPABASE_URL,
     PUBLIC_SUPABASE_ANON_KEY,
     {
-      auth: {
-        persistSession: false, // Important: keep this as false for SSR
-        autoRefreshToken: false, // Don't auto-refresh on server
-        flowType: "pkce",
-      },
       cookieOptions,
       cookies: {
         getAll() {

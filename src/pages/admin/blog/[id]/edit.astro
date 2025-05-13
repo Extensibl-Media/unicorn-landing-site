@@ -2,6 +2,7 @@
 import AdminLayout from "@/layouts/AdminLayout.astro";
 import PostForm from "@/components/admin/blog-form";
 import { PUBLIC_SITE_URL } from "astro:env/client";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const { id } = Astro.params;
 
@@ -16,7 +17,55 @@ const post = await fetch(`${PUBLIC_SITE_URL}/api/blog/${id}`, { method: "GET" })
         return null;
     });
 
-console.log({ post });
+if (Astro.request.method === "PATCH") {
+    try {
+        // Parse the JSON body from the request
+        const postData = await Astro.request.json();
+
+        // Create Supabase client
+        const supabase = createAdminClient();
+
+        // Insert post into database
+        const { data, error } = await supabase.from("posts").update({
+            title: postData.title,
+            content: postData.content,
+            excerpt: postData.excerpt,
+            seo_title: postData.seo_title,
+            seo_description: postData.seo_description,
+            featured_image: postData.featured_image,
+            status: postData.status || "draft",
+            created_at: new Date().toISOString(),
+        });
+
+        if (error) {
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: error.message,
+                }),
+                {
+                    status: 500,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        }
+
+        // Redirect on success
+        return Astro.redirect("/admin/blog");
+    } catch (error) {
+        console.error("Error processing form:", error);
+        return new Response(
+            JSON.stringify({
+                success: false,
+                message: error.message || "Failed to create post",
+            }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            },
+        );
+    }
+}
 ---
 
 <AdminLayout title="Edit Post">

@@ -78,24 +78,21 @@ export function EditPodcastForm({ podcast, channels }: EditPodcastFormProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(
-        `${PUBLIC_SITE_URL}/api/podcasts/${podcast.id}`,
-        {
-          method: "PATCH",
-          body: JSON.stringify({
-            id: podcast.id,
-            title: values.title,
-            subtitle: values.subtitle,
-            channel_name: values.channel_name,
-            duration: values.duration,
-            external_url: values.external_url,
-            image_url: values.image_url,
-            release_date: values.release_date
-              ? values.release_date.toISOString()
-              : null,
-          }),
-        },
-      );
+      const response = await fetch(`/admin/podcasts/${podcast.id}/edit`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          id: podcast.id,
+          title: values.title,
+          subtitle: values.subtitle,
+          channel_name: values.channel_name,
+          duration: values.duration,
+          external_url: values.external_url,
+          image_url: values.image_url,
+          release_date: values.release_date
+            ? values.release_date.toISOString()
+            : null,
+        }),
+      });
       if (!response.ok) {
         console.error("Failed to edit podcast");
         return;
