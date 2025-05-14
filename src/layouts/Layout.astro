@@ -69,6 +69,20 @@ const { title, description } = Astro.props;
             /></noscript
         >
         <!-- End Meta Pixel Code -->
+
+        <!-- Google tag (gtag.js) -->
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-XZ8JRY5BK3"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+            gtag("config", "G-XZ8JRY5BK3");
+        </script>
     </head>
     <body>
         <!-- <div id="preloader" class="transition-all duration-1000">
