@@ -120,6 +120,7 @@ export default function PostForm({ post }: { post?: Post }) {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify(postData),
         });
       } else {

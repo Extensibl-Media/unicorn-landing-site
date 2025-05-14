@@ -33,7 +33,7 @@ if (Astro.request.method === "PATCH") {
         const supabase = createAdminClient();
 
         // Insert podcast into database
-        const { data, error } = await supabase.from("podcast_links").update({
+        const { error } = await supabase.from("podcast_links").update({
             title: podcastData.title,
             subtitle: podcastData.subtitle,
             channel_name: podcastData.channel_name,
@@ -41,20 +41,12 @@ if (Astro.request.method === "PATCH") {
             image_url: podcastData.image_url,
             duration: podcastData.duration,
             release_date: podcastData.release_date,
-            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
         });
 
         if (error) {
-            return new Response(
-                JSON.stringify({
-                    success: false,
-                    message: error.message,
-                }),
-                {
-                    status: 500,
-                    headers: { "Content-Type": "application/json" },
-                },
-            );
+            console.log(error);
+            throw error;
         }
 
         // Redirect on success
@@ -64,7 +56,7 @@ if (Astro.request.method === "PATCH") {
         return new Response(
             JSON.stringify({
                 success: false,
-                message: error.message || "Failed to create podcast",
+                message: error.message || "Failed to update podcast",
             }),
             {
                 status: 500,
