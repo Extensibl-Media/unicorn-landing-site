@@ -48,6 +48,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { normalizeTimeString } from "@/lib/helpers/dateHelpers";
 
 type Event = {
   id: number;
@@ -89,11 +90,11 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(
-    event.date ? parseISO(event.date) : undefined,
+    event.date ? parseISO(event.date) : undefined
   );
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setEditedEvent((prev) => ({
@@ -143,10 +144,10 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
           editedEvent.club_id?.toString() === "none"
             ? null
             : editedEvent.club_id
-              ? typeof editedEvent.club_id === "string"
-                ? parseInt(editedEvent.club_id, 10)
-                : editedEvent.club_id
-              : null,
+            ? typeof editedEvent.club_id === "string"
+              ? parseInt(editedEvent.club_id, 10)
+              : editedEvent.club_id
+            : null,
       };
 
       const { error } = await fetch(`/api/events/${event.id}`, {
@@ -169,7 +170,7 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
       setIsEditing(false);
     } catch (err) {
       setErrorMessage(
-        err instanceof Error ? err.message : "An error occurred while saving",
+        err instanceof Error ? err.message : "An error occurred while saving"
       );
     } finally {
       setIsSubmitting(false);
@@ -187,10 +188,10 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
 
     let timeStr = "";
     if (editedEvent.start_time) {
-      timeStr += editedEvent.start_time;
+      timeStr += normalizeTimeString(editedEvent.start_time);
     }
     if (editedEvent.end_time) {
-      timeStr += ` - ${editedEvent.end_time}`;
+      timeStr += ` - ${normalizeTimeString(editedEvent.end_time)}`;
     }
     return timeStr || "Time not specified";
   };
@@ -414,7 +415,7 @@ export function EventDetails({ event, clubs }: EventDetailsProps) {
                         onCheckedChange={(checked) =>
                           handleBooleanChange(
                             "sponsored_event",
-                            checked === true,
+                            checked === true
                           )
                         }
                       />

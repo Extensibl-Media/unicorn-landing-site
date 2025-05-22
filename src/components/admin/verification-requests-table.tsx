@@ -98,7 +98,7 @@ export function VerificationRequestsTable({
   const updateSearchParams = (
     newStatus?: string,
     newSearch?: string,
-    newPage?: number,
+    newPage?: number
   ) => {
     const params = new URLSearchParams(window.location.search);
 
@@ -154,8 +154,8 @@ export function VerificationRequestsTable({
       // Update local state
       setCurrentRequests((prevRequests) =>
         prevRequests.map((req) =>
-          req.id === requestId ? { ...req, status: "APPROVED" } : req,
-        ),
+          req.id === requestId ? { ...req, status: "APPROVED" } : req
+        )
       );
 
       setSuccessMessage("User verified successfully");
@@ -195,15 +195,15 @@ export function VerificationRequestsTable({
       if (!response.ok) {
         const error = await response.json();
         throw new Error(
-          error.message || "Failed to update verification status",
+          error.message || "Failed to update verification status"
         );
       }
 
       // Update local state
       setCurrentRequests((prevRequests) =>
         prevRequests.map((req) =>
-          req.id === requestId ? { ...req, status: "DENIED" } : req,
-        ),
+          req.id === requestId ? { ...req, status: "DENIED" } : req
+        )
       );
 
       setSuccessMessage("Verification request denied");

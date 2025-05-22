@@ -24,7 +24,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
-      },
+      }
     );
   }
   const isAdmin =
@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       {
         status: 403,
         headers: { "Content-Type": "application/json" },
-      },
+      }
     );
   }
   try {
@@ -55,7 +55,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        },
+        }
       );
     }
 
@@ -77,16 +77,29 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       .select()
       .single();
 
-    await supabaseAdmin.functions.invoke("send-email", {
-      body: {
-        to: data?.email,
-        subject: `Your Unicorn Landing Verification Request has been approved!`,
-        html: `<h1>Unicorn Landing</h1><br />
-        <p>Your account has been verified.</p> <br />
-        <p>Your account will now feature a Verified checkmark, letting others know your profile can be trusted.</p> <br />
-        <p>Thank you, The Unicorn Landing App Team</p> <br />`,
-      },
-    });
+    if (verified === true) {
+      await supabaseAdmin.functions.invoke("send-email", {
+        body: {
+          to: data?.email,
+          subject: `Your Unicorn Landing Verification Request has been approved!`,
+          html: `<h1>Unicorn Landing</h1><br />
+      <p>Your account has been verified.</p> <br />
+      <p>Your account will now feature a Verified checkmark, letting others know your profile can be trusted.</p> <br />
+      <p>Thank you, The Unicorn Landing App Team</p> <br />`,
+        },
+      });
+    } else if (verified === false) {
+      await supabaseAdmin.functions.invoke("send-email", {
+        body: {
+          to: data?.email,
+          subject: `Your Unicorn Landing Verification Request has been denied.`,
+          html: `<h1>Unicorn Landing</h1><br />
+      <p>Your request for account approval has been denied.</p> <br />
+      <p>Please check your account. If you wish to resubmit a new request, please check your account settings and provide a new photo that adheres to our verification guidelines.</p> <br />
+      <p>Thank you, The Unicorn Landing App Team</p> <br />`,
+        },
+      });
+    }
 
     if (error) {
       console.error("Error updating user verification status:", error);
@@ -99,7 +112,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
-        },
+        }
       );
     }
 
@@ -117,7 +130,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       if (requestError) {
         console.error(
           "Error updating verification request status:",
-          requestError,
+          requestError
         );
         // Don't fail the whole operation if this part fails, but include in response
         return new Response(
@@ -131,7 +144,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
           {
             status: 200,
             headers: { "Content-Type": "application/json" },
-          },
+          }
         );
       }
     } else {
@@ -147,7 +160,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       if (requestError) {
         console.error(
           "Error updating verification request status:",
-          requestError,
+          requestError
         );
         // Don't fail the whole operation if this part fails, but include in response
         return new Response(
@@ -161,7 +174,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
           {
             status: 200,
             headers: { "Content-Type": "application/json" },
-          },
+          }
         );
       }
     }
@@ -174,7 +187,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      },
+      }
     );
   } catch (error) {
     console.error("Unexpected error updating user verification:", error);
@@ -186,7 +199,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
-      },
+      }
     );
   }
 };

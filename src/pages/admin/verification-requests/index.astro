@@ -2,8 +2,8 @@
 // src/pages/admin/verification-requests.astro
 import AdminLayout from "@/layouts/AdminLayout.astro";
 import {
-    VerificationRequestsTable,
-    type VerificationRequest,
+  VerificationRequestsTable,
+  type VerificationRequest,
 } from "@/components/admin/verification-requests-table";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,37 +15,38 @@ const pageSize = 10;
 
 // Create Supabase client
 const supabase = createClient({
-    headers: Astro.request.headers,
-    cookies: Astro.cookies,
+  headers: Astro.request.headers,
+  cookies: Astro.cookies,
 });
 
 // Call the RPC function to get verification requests with joined profile data
 const { data, error } = await supabase.rpc("get_verification_requests", {
-    search_query: searchQuery || "",
-    status_filter: status,
-    page_number: page,
-    page_size: pageSize,
+  search_query: searchQuery || "",
+  status_filter: status,
+  page_number: page,
+  page_size: pageSize,
 });
 
 if (error) {
-    console.error("Error fetching verification requests:", error);
+  console.error("Error fetching verification requests:", error);
 }
 
 // Process the results to match the expected format
 const requests: VerificationRequest[] =
-    data?.map((item) => ({
-        id: item.id,
-        user_id: item.user_id,
-        verified: item.verified,
-        verification_image: item.verification_image,
-        status: item.status as "PENDING" | "APPROVED" | "DENIED",
-        created_at: item.created_at,
-        profiles: {
-            id: item.profile_id,
-            username: item.username,
-            avatar_url: item.avatar_url,
-        },
-    })) || [];
+  data?.map((item) => ({
+    id: item.id,
+    user_id: item.user_id,
+    verified: item.verified,
+    verification_image: item.verification_image,
+    status: item.status as "PENDING" | "APPROVED" | "DENIED",
+    created_at: item.created_at,
+    profiles: {
+      id: item.profile_id,
+      username: item.username,
+      avatar_url: item.avatar_url,
+      email: item.email, // Ensure email is included
+    },
+  })) || [];
 
 // Get the total count from the first row (all rows have the same total_count)
 const totalCount = data && data.length > 0 ? data[0].total_count : 0;
@@ -53,26 +54,24 @@ const totalPages = Math.ceil(totalCount / pageSize);
 ---
 
 <AdminLayout title="Verification Requests">
-    <div class="space-y-6">
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight">
-                    Verification Requests
-                </h1>
-                <p class="text-muted-foreground">
-                    Review and manage user verification requests
-                </p>
-            </div>
-        </div>
-
-        <VerificationRequestsTable
-            client:load
-            requests={requests}
-            currentPage={page}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            status={status}
-            searchQuery={searchQuery}
-        />
+  <div class="space-y-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Verification Requests</h1>
+        <p class="text-muted-foreground">
+          Review and manage user verification requests
+        </p>
+      </div>
     </div>
+
+    <VerificationRequestsTable
+      client:load
+      requests={requests}
+      currentPage={page}
+      totalPages={totalPages}
+      totalCount={totalCount}
+      status={status}
+      searchQuery={searchQuery}
+    />
+  </div>
 </AdminLayout>

@@ -46,6 +46,7 @@ import {
 import { createClient } from "@/lib/supabase/browser";
 
 import type { ContentModerationUpload } from "@/components/admin/content-uploads-table";
+import { UserProfileEditForm } from "./user-profile-edit-form";
 
 type Profile = {
   id: string;
@@ -129,7 +130,7 @@ export function UserProfileDetails({
       });
 
       setSuccessMessage(
-        `User ${status ? "approved" : "unapproved"} successfully`,
+        `User ${status ? "approved" : "unapproved"} successfully`
       );
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "An error occurred");
@@ -171,7 +172,7 @@ export function UserProfileDetails({
     uploadId: number,
     imageType: string,
     url: string,
-    userId: string | null,
+    userId: string | null
   ) => {
     if (!userId) {
       setErrorMessage("User ID is required");
@@ -221,7 +222,7 @@ export function UserProfileDetails({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ hidefromSearch: hidden }),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -281,7 +282,7 @@ export function UserProfileDetails({
         verified: verified,
       });
       setSuccessMessage(
-        `User verification ${verified ? "approved" : "denied"} successfully.`,
+        `User verification ${verified ? "approved" : "denied"} successfully.`
       );
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "An error occurred");
@@ -322,26 +323,10 @@ export function UserProfileDetails({
               <CardHeader className="pb-2">
                 <div className="flex justify-between">
                   <CardTitle>User Profile</CardTitle>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem className="text-blue-600">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Profile
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={() => setIsDeleteDialogOpen(true)}
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Block User
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <UserProfileEditForm
+                    profile={profile}
+                    onProfileUpdate={setActiveProfile}
+                  />
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
@@ -413,7 +398,9 @@ export function UserProfileDetails({
               <CardFooter className="flex justify-center pb-6 pt-2">
                 <div className="flex flex-col items-center gap-4 w-full">
                   <Button
-                    className={`w-full ${!activeProfile.approved && "bg-green-500"}`}
+                    className={`w-full ${
+                      !activeProfile.approved && "bg-green-500"
+                    }`}
                     variant={activeProfile.approved ? "outline" : "default"}
                     onClick={() =>
                       handleApprovalChange(!activeProfile.approved)
@@ -564,7 +551,7 @@ export function UserProfileDetails({
                             className="bg-green-400"
                             onClick={() => {
                               const uploadData = uploadedMedia.find(
-                                (media) => media.url_string === upload,
+                                (media) => media.url_string === upload
                               );
                               if (uploadData) {
                                 handleModerateImage(
@@ -572,7 +559,7 @@ export function UserProfileDetails({
                                   uploadData.id,
                                   uploadData.image_type,
                                   uploadData.url_string,
-                                  activeProfile.id,
+                                  activeProfile.id
                                 );
                               } else {
                                 setErrorMessage("Upload not found");
@@ -586,7 +573,7 @@ export function UserProfileDetails({
                             variant="destructive"
                             onClick={() => {
                               const uploadData = uploadedMedia.find(
-                                (media) => media.url_string === upload,
+                                (media) => media.url_string === upload
                               );
                               if (uploadData) {
                                 handleModerateImage(
@@ -594,7 +581,7 @@ export function UserProfileDetails({
                                   uploadData.id,
                                   uploadData.image_type,
                                   uploadData.url_string,
-                                  activeProfile.id,
+                                  activeProfile.id
                                 );
                               } else {
                                 setErrorMessage("Upload not found");
@@ -610,7 +597,7 @@ export function UserProfileDetails({
                             onClick={() => {
                               console.log(upload);
                               const uploadData = uploadedMedia.find(
-                                (media) => media.url_string === upload,
+                                (media) => media.url_string === upload
                               );
                               if (uploadData) {
                                 handleModerateImage(
@@ -618,7 +605,7 @@ export function UserProfileDetails({
                                   uploadData.id,
                                   uploadData.image_type,
                                   uploadData.url_string,
-                                  activeProfile.id,
+                                  activeProfile.id
                                 );
                               } else {
                                 setErrorMessage("Upload not found");
@@ -636,7 +623,7 @@ export function UserProfileDetails({
                         >
                           {
                             uploadedMedia.find(
-                              (media) => media.url_string === upload,
+                              (media) => media.url_string === upload
                             )?.status
                           }
                         </Badge>
