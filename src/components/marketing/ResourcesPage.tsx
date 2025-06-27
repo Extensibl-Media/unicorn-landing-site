@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import type { Post, Tag } from "@/lib/supabase/blog";
 import type { Podcast } from "@/lib/supabase/podcasts";
+import type { Database } from "@/types/supabase";
 
 type ArticleResource = Post & {
   category: "articles";
@@ -27,11 +28,18 @@ type PodcastResource = Podcast & {
   category: "podcasts";
   description?: string;
 };
-type Resource = ArticleResource | PodcastResource;
+
+type CommunityResource =
+  Database["public"]["Tables"]["community_posts"]["Row"] & {
+    category: "community";
+  };
+
+type Resource = ArticleResource | PodcastResource | CommunityResource;
 
 const CATEGORIES = [
   { id: "all", label: "All Resources" },
   { id: "articles", label: "Articles" },
+  { id: "community", label: "Community" },
   { id: "podcasts", label: "Podcasts" },
 ];
 
@@ -48,11 +56,11 @@ export default function ResourcesPage({
   const resources: Resource[] = [
     ...articles.map(
       (article: Post) =>
-        ({ ...article, category: "articles" }) as ArticleResource,
+        ({ ...article, category: "articles" } as ArticleResource)
     ),
     ...podcasts.map(
       (podcast: Podcast) =>
-        ({ ...podcast, category: "podcasts" }) as PodcastResource,
+        ({ ...podcast, category: "podcasts" } as PodcastResource)
     ),
   ];
 
@@ -70,7 +78,7 @@ export default function ResourcesPage({
           resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           resource.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           resource.tags?.some((tag) =>
-            tag.name.toLowerCase().includes(searchQuery.toLowerCase()),
+            tag.name.toLowerCase().includes(searchQuery.toLowerCase())
           )
         );
       case "podcasts":
@@ -137,6 +145,47 @@ export default function ResourcesPage({
                   </Badge>
                 ))}
               </CardFooter>
+            </Card>
+          </a>
+        );
+      }
+      case "community": {
+        // Community resources are not implemented yet, returning null
+        return (
+          <a
+            href={`/resources/community/${resource.id}`}
+            key={resource.id}
+            className="group"
+          >
+            <Card className="overflow-hidden border border-pink-100 hover:border-pink-300 transition-all rounded-xl shadow-sm hover:shadow-md">
+              <div className="relative h-48 overflow-hidden rounded-t-xl">
+                <img
+                  src={resource.cover_image}
+                  alt={resource.title}
+                  className="object-cover w-full h-full"
+                />
+                <Badge className="absolute top-2 right-2 bg-pink-500 text-white hover:bg-pink-600">
+                  Community
+                </Badge>
+              </div>
+              <CardHeader className="pb-2">
+                {resource.created_at && (
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs text-gray-500">
+                      {format(new Date(resource.created_at), "PPP")}
+                    </div>
+                  </div>
+                )}
+                <CardTitle className="text-lg font-bold text-gray-800">
+                  {resource.title}
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-600">
+                  By Unicorn Landing
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <p className="text-sm text-gray-600">{resource.description}</p>
+              </CardContent>
             </Card>
           </a>
         );

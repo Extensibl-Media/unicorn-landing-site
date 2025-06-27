@@ -1,6 +1,4 @@
-Need to install the following packages:
-supabase@2.22.6
-Ok to proceed? (y) export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -178,6 +176,36 @@ export type Database = {
           state?: string
           total_reviews?: number | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      community_posts: {
+        Row: {
+          associated_link: string | null
+          body: string
+          cover_image: string
+          created_at: string
+          description: string
+          id: number
+          title: string
+        }
+        Insert: {
+          associated_link?: string | null
+          body: string
+          cover_image: string
+          created_at?: string
+          description: string
+          id?: number
+          title: string
+        }
+        Update: {
+          associated_link?: string | null
+          body?: string
+          cover_image?: string
+          created_at?: string
+          description?: string
+          id?: number
+          title?: string
         }
         Relationships: []
       }

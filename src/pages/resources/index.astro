@@ -10,7 +10,7 @@ const supabase = createClient({
     cookies: Astro.cookies,
 });
 
-const { data: articles, error: postsError } = await supabase
+const { data: articles } = await supabase
     .from("posts")
     .select(
         `
@@ -23,16 +23,14 @@ const { data: articles, error: postsError } = await supabase
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
-const { data: podcasts, error: podcastsError } = await supabase
+const { data: podcasts } = await supabase
     .from("podcast_links")
-    .select(
-        `
-      *
-      `,
-    )
+    .select(`*`)
     .order("created_at", { ascending: false });
 
-console.log({ podcasts, podcastsError });
+const { data: community} = await supabase.from('community_posts').select(`*`).order("created_at", { ascending: false });
+
+console.log("Community posts:", community);
 ---
 
 <Layout title="Resources - Unicorn Landing">
