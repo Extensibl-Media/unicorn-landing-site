@@ -3,7 +3,6 @@ import { getPostBySlug, getPosts } from "@/lib/supabase/blog";
 const { slug } = Astro.params;
 const post = await getPostBySlug(Astro.request, Astro.cookies, slug);
 
-console.log({ slug, post });
 import Layout from "@/layouts/Layout.astro";
 import { format } from "date-fns";
 ---
@@ -39,7 +38,7 @@ import { format } from "date-fns";
                 </div>
 
                 <div class="text-gray-500 text-sm">
-                    <span>{format(new Date(post.created_at), "PPP")}</span>
+                    <span>{format(new Date(post.created_at || new Date()), "PPP")}</span>
                     <span class="mx-2">•</span>
                     <!-- <span>{readingTime} min read</span> -->
                 </div>

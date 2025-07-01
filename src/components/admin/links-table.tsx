@@ -99,7 +99,9 @@ const SortableLink = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`touch-none flex gap-2 flex-col sm:flex-row sm:items-center justify-between flex-wrap p-4 mb-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow transition-all ${!link.active ? "opacity-60" : ""}`}
+      className={`touch-none flex gap-2 flex-col sm:flex-row sm:items-center justify-between flex-wrap p-4 mb-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow transition-all ${
+        !link.active ? "opacity-60" : ""
+      }`}
     >
       <div className="flex items-center grow">
         <div
@@ -130,10 +132,8 @@ const SortableLink = ({
             {link.description && (
               <p className="text-sm text-gray-500">{link.description}</p>
             )}
-            <div className="text-xs text-gray-400 mt-1">
-              <span className="block sm:inline truncate max-w-[200px]">
-                {link.url}
-              </span>
+            <div className="text-xs text-gray-400 mt-1 grow-1">
+              <span className="block truncate max-w-sm">{link.url}</span>
               {link.order !== null && (
                 <span className="sm:ml-2 hidden sm:inline">
                   Order: {link.order}
@@ -148,7 +148,11 @@ const SortableLink = ({
         <Button
           variant="outline"
           size="sm"
-          className={`px-3 py-1 h-8 ${link.active ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200" : "bg-red-50 hover:bg-red-100 text-red-700 border-red-200"}`}
+          className={`px-3 py-1 h-8 ${
+            link.active
+              ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+              : "bg-red-50 hover:bg-red-100 text-red-700 border-red-200"
+          }`}
           onClick={() => onToggleActive(link)}
         >
           {link.active ? "Active" : "Inactive"}
@@ -192,7 +196,7 @@ export default function LinksTable({ links }: LinksProps) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   // Initialize form
@@ -285,8 +289,8 @@ export default function LinksTable({ links }: LinksProps) {
         // Update local state
         setLinkData(
           linkData.map((link) =>
-            link.id === selectedLink.id ? (data as Link) : link,
-          ),
+            link.id === selectedLink.id ? (data as Link) : link
+          )
         );
 
         // Only close dialog and reset form on success
@@ -360,8 +364,8 @@ export default function LinksTable({ links }: LinksProps) {
       // Update local state
       setLinkData(
         linkData.map((l) =>
-          l.id === link.id ? { ...l, active: !link.active } : l,
-        ),
+          l.id === link.id ? { ...l, active: !link.active } : l
+        )
       );
     } catch (err: any) {
       setError(err.message);
@@ -447,7 +451,7 @@ export default function LinksTable({ links }: LinksProps) {
         linkData.map((link, index) => ({
           ...link,
           order: (index + 1) * 100,
-        })),
+        }))
       );
 
       setIsDirty(false);
@@ -511,7 +515,7 @@ export default function LinksTable({ links }: LinksProps) {
           </Button>
         </div>
       ) : (
-        <div className="link-container">
+        <div className="link-container w-full">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -601,15 +605,15 @@ export default function LinksTable({ links }: LinksProps) {
                       // Update local state
                       setLinkData(
                         linkData.map((link) =>
-                          link.id === selectedLink.id ? (data as Link) : link,
-                        ),
+                          link.id === selectedLink.id ? (data as Link) : link
+                        )
                       );
                     } else {
                       // Create new link
                       const highestOrder =
                         linkData.length > 0
                           ? Math.max(
-                              ...linkData.map((link) => link.order ?? 0),
+                              ...linkData.map((link) => link.order ?? 0)
                             ) + 100
                           : 100;
 
@@ -658,7 +662,7 @@ export default function LinksTable({ links }: LinksProps) {
                   console.error("Validation errors:", errors);
                   // Don't close the dialog, just show the validation errors
                   setIsSubmitting(false);
-                },
+                }
               )}
               className="space-y-4"
             >
@@ -785,8 +789,8 @@ export default function LinksTable({ links }: LinksProps) {
                       ? "Saving..."
                       : "Creating..."
                     : isEditMode
-                      ? "Save Changes"
-                      : "Create Link"}
+                    ? "Save Changes"
+                    : "Create Link"}
                 </Button>
               </AlertDialogFooter>
             </form>

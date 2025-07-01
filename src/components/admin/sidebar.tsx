@@ -24,6 +24,8 @@ import {
   TriangleAlert,
   Link,
   Podcast,
+  Users2,
+  UserPen,
 } from "lucide-react";
 import { createClient } from "../../lib/supabase/browser";
 
@@ -47,6 +49,11 @@ export default function AdminSidebar() {
     { icon: PartyPopper, label: "Events", href: "/admin/events" },
     { icon: Newspaper, label: "Blog Posts", href: "/admin/blog" },
     { icon: Podcast, label: "Podcasts", href: "/admin/podcasts" },
+    {
+      icon: UserPen,
+      label: "Communtity Posts",
+      href: "/admin/community-posts",
+    },
     { icon: Link, label: "Links Page", href: "/admin/links" },
     {
       icon: Images,
@@ -66,8 +73,7 @@ export default function AdminSidebar() {
             href={item.href}
             className={cn(
               "flex items-center px-2 py-2 rounded-lg hover:bg-pink-200 transition-colors",
-              window.location.pathname === item.href &&
-                "bg-pink-400 text-white",
+              window.location.pathname === item.href && "bg-pink-400 text-white"
             )}
           >
             <item.icon className="h-5 w-5" />

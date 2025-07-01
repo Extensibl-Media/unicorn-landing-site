@@ -37,70 +37,62 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import type { CommunityPost } from "@/lib/supabase/community-posts";
 
-interface PodcastsTableProps {
-  podcasts: Podcast[];
+interface CommunityPostsTableProps {
+  posts: CommunityPost[];
   sortBy: string;
   sortOrder: string;
 }
 
-export function PodcastsTable({
-  podcasts: initialPodcasts,
+export function CommunityPostsTable({
+  posts: initialPosts,
   sortBy,
   sortOrder,
-}: PodcastsTableProps) {
-  const [podcasts, setPodcasts] = useState<Podcast[]>(initialPodcasts);
-  const [selectedPodcast, setSelectedPodcast] = useState<Podcast | null>(null);
+}: CommunityPostsTableProps) {
+  const [posts, setPosts] = useState<CommunityPost[]>(initialPosts);
+  const [selectedPost, setSelectedPost] = useState<CommunityPost | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Function to format duration from seconds to mm:ss format
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
-
-  const handleDeleteClick = (podcast: Podcast) => {
-    setSelectedPodcast(podcast);
+  const handleDeleteClick = (post: CommunityPost) => {
+    setSelectedPost(post);
     setIsDeleteDialogOpen(true);
   };
 
   const handleDelete = async () => {
-    if (!selectedPodcast) return;
+    if (!selectedPost) return;
 
     setIsSubmitting(true);
     setErrorMessage(null);
     setSuccessMessage(null);
 
     try {
-      const response = await fetch(`/api/podcasts/${selectedPodcast.id}`, {
+      const response = await fetch(`/api/community-posts/${selectedPost.id}`, {
         method: "DELETE",
       });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to delete podcast");
+        throw new Error(result.error || "Failed to delete post");
       }
 
-      // Update local state to remove the deleted podcast
-      setPodcasts(
-        podcasts.filter((podcast) => podcast.id !== selectedPodcast.id)
-      );
+      // Update local state to remove the deleted post
+      setPosts(posts.filter((post) => post.id !== selectedPost.id));
 
       // Show success message
       setSuccessMessage(
-        `"${selectedPodcast.title}" has been removed successfully.`
+        `"${selectedPost.title}" has been removed successfully.`
       );
 
       // Close the dialog
       setIsDeleteDialogOpen(false);
-      setSelectedPodcast(null);
+      setSelectedPost(null);
     } catch (err) {
-      console.error("Error deleting podcast:", err);
+      console.error("Error deleting post:", err);
       setErrorMessage(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
@@ -133,40 +125,30 @@ export function PodcastsTable({
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead>Channel</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Release Date</TableHead>
+              <TableHead>Created At</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {podcasts.map((podcast) => (
-              <TableRow key={podcast.id}>
+            {posts.map((post) => (
+              <TableRow key={post.id}>
                 <TableCell>
-                  <div>
-                    <p className="font-medium">{podcast.title}</p>
-                  </div>
+                  <a href={`/admin/community-posts/${post.id}`}>
+                    <p className="font-medium">{post.title}</p>
+                  </a>
                 </TableCell>
+
                 <TableCell>
-                  <Badge variant="outline">{podcast.channel_name}</Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    {formatDuration(podcast.duration)}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {podcast.release_date ? (
+                  {post.created_at ? (
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {formatDistanceToNow(new Date(podcast.release_date), {
+                      {formatDistanceToNow(new Date(post.created_at), {
                         addSuffix: true,
                       })}
                     </div>
                   ) : (
                     <Badge variant="outline" className="bg-yellow-100">
-                      Unreleased
+                      Unknown
                     </Badge>
                   )}
                 </TableCell>
@@ -180,7 +162,7 @@ export function PodcastsTable({
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={() =>
-                          (window.location.href = `/admin/podcasts/${podcast.id}/edit`)
+                          (window.location.href = `/admin/community-posts/${post.id}/edit`)
                         }
                       >
                         <Pencil className="mr-2 h-4 w-4" />
@@ -188,23 +170,15 @@ export function PodcastsTable({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
-                          (window.location.href = `/admin/podcasts/${podcast.id}`)
+                          (window.location.href = `/admin/community-posts/${post.id}`)
                         }
                       >
                         <Eye className="mr-2 h-4 w-4" />
                         Preview
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() =>
-                          window.open(podcast.external_url, "_blank")
-                        }
-                      >
-                        <ArrowUpRightSquare className="mr-2 h-4 w-4" />
-                        Listen External
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
                         className="text-red-600"
-                        onClick={() => handleDeleteClick(podcast)}
+                        onClick={() => handleDeleteClick(post)}
                       >
                         <Trash className="mr-2 h-4 w-4" />
                         Delete
@@ -226,11 +200,11 @@ export function PodcastsTable({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you sure you want to delete this podcast?
+              Are you sure you want to delete this post?
             </AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              podcast "{selectedPodcast?.title}" and remove all associated data.
+              post "{selectedPost?.title}" and remove all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -242,7 +216,7 @@ export function PodcastsTable({
               disabled={isSubmitting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isSubmitting ? "Deleting..." : "Delete Podcast"}
+              {isSubmitting ? "Deleting..." : "Delete Post"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

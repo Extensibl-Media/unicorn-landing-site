@@ -1,31 +1,27 @@
 ---
 // src/pages/admin/podcasts/new.astro
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { NewPodcastForm } from "@/components/admin/new-podcast-form";
-import { getChannels } from "@/lib/supabase/podcasts";
+import { NewCommunityPostForm } from "@/components/admin/new-community-post-form";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-// Get channel options for the form
-const channels = await getChannels(Astro.request, Astro.cookies);
+import type { CommunityPost } from "@/lib/supabase/community-posts";
 
 // Handle form submission
 if (Astro.request.method === "POST") {
   try {
     // Parse the JSON body from the request
-    const podcastData = await Astro.request.json();
+    const postData: Omit<CommunityPost, "id" | "created_at" | "updated_at"> =
+      await Astro.request.json();
 
     // Create Supabase client
     const supabase = createAdminClient();
 
-    // Insert podcast into database
-    const { data, error } = await supabase.from("podcast_links").insert({
-      title: podcastData.title,
-      subtitle: podcastData.subtitle,
-      channel_name: podcastData.channel_name,
-      external_url: podcastData.external_url,
-      image_url: podcastData.image_url,
-      duration: podcastData.duration,
-      release_date: podcastData.release_date,
+    // Insert community post into database
+    const { data, error } = await supabase.from("community_posts").insert({
+      title: postData.title,
+      description: postData.description,
+      associated_link: postData.associated_link,
+      body: postData.body,
+      cover_image: postData.cover_image,
       created_at: new Date().toISOString(),
     });
 
@@ -43,13 +39,13 @@ if (Astro.request.method === "POST") {
     }
 
     // Redirect on success
-    return Astro.redirect("/admin/podcasts");
+    return Astro.redirect("/admin/community-posts");
   } catch (error) {
     console.error("Error processing form:", error);
     return new Response(
       JSON.stringify({
         success: false,
-        message: error.message || "Failed to create podcast",
+        message: error.message || "Failed to create community post",
       }),
       {
         status: 500,
@@ -60,26 +56,26 @@ if (Astro.request.method === "POST") {
 }
 ---
 
-<AdminLayout title="Add New Podcast">
+<AdminLayout title="Add New Post">
   <div class="space-y-4">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold">Add New Podcast</h1>
+        <h1 class="text-2xl font-bold">Add New Post</h1>
         <p class="text-muted-foreground">
-          Create a new podcast entry in your collection
+          Create a new Community Post entry in your collection
         </p>
       </div>
 
       <a
-        href="/admin/podcasts"
+        href="/admin/community-posts"
         class="bg-secondary text-secondary-foreground
             px-4 py-2 rounded-md"
       >
-        Back to Podcasts
+        Back to Community Posts
       </a>
     </div>
   </div>
   <div class="border rounded-lg p-6 bg-white">
-    <NewPodcastForm client:load channels={channels} />
+    <NewCommunityPostForm client:load />
   </div>
 </AdminLayout>
