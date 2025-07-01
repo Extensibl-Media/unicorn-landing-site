@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import type { Post, Tag } from "@/lib/supabase/blog";
 import type { Podcast } from "@/lib/supabase/podcasts";
 import type { Database } from "@/types/supabase";
+import { Type } from "lucide-react";
 
 type ArticleResource = Post & {
   category: "articles";
@@ -29,10 +30,11 @@ type PodcastResource = Podcast & {
   description?: string;
 };
 
-type CommunityResource =
-  Database["public"]["Tables"]["community_posts"]["Row"] & {
-    category: "community";
-  };
+type CommunityPost = Database["public"]["Tables"]["community_posts"]["Row"];
+
+type CommunityResource = CommunityPost & {
+  category: "community";
+};
 
 type Resource = ArticleResource | PodcastResource | CommunityResource;
 
@@ -46,9 +48,11 @@ const CATEGORIES = [
 export default function ResourcesPage({
   articles,
   podcasts,
+  community,
 }: {
   articles: Post[];
   podcasts: Podcast[];
+  community: CommunityPost[];
 }) {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,39 +66,60 @@ export default function ResourcesPage({
       (podcast: Podcast) =>
         ({ ...podcast, category: "podcasts" } as PodcastResource)
     ),
+    ...community.map(
+      (post: CommunityPost) =>
+        ({ ...post, category: "community" } as CommunityResource)
+    ),
   ];
 
-  const filteredResources = resources.filter((resource: Resource) => {
-    // Filter by category
-    if (activeCategory !== "all" && resource.category !== activeCategory) {
-      return false;
-    }
-
-    // Type narrowing in each case
-    switch (resource.category) {
-      case "articles":
-        // TypeScript knows resource is ArticleResource here
-        return (
-          resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          resource.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          resource.tags?.some((tag) =>
-            tag.name.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        );
-      case "podcasts":
-        // TypeScript knows resource is PodcastResource here
-        return (
-          resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          resource.description
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        );
-      default:
-        // This should be unreachable with a proper discriminated union
+  const filteredResources = resources
+    .sort((a, b) => {
+      // Sort by created_at date if available, otherwise by id
+      const dateA = new Date(a.created_at!).getTime();
+      const dateB = new Date(b.created_at!).getTime();
+      return dateB > dateA ? 1 : -1;
+    })
+    .filter((resource: Resource) => {
+      // Filter by category
+      if (activeCategory !== "all" && resource.category !== activeCategory) {
         return false;
-    }
-  });
+      }
 
+      // Type narrowing in each case
+      switch (resource.category) {
+        case "articles":
+          // TypeScript knows resource is ArticleResource here
+          return (
+            resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            resource.excerpt
+              ?.toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            resource.tags?.some((tag) =>
+              tag.name.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          );
+        case "podcasts":
+          // TypeScript knows resource is PodcastResource here
+          return (
+            resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            resource.description
+              ?.toLowerCase()
+              .includes(searchQuery.toLowerCase())
+          );
+        case "community":
+          // TypeScript knows resource is CommunityResource here
+          return (
+            resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            resource.description
+              ?.toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            resource.body?.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        default:
+          // This should be unreachable with a proper discriminated union
+          return false;
+      }
+    });
   const renderResourceCard = (resource: Resource) => {
     switch (resource.category) {
       case "articles": {
@@ -210,11 +235,9 @@ export default function ResourcesPage({
                 </Badge>
               </div>
               <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
+                <div className="space-y-2">
                   <div className="text-xs text-gray-500">
-                    {resource.release_date
-                      ? format(new Date(resource.release_date), "PPP")
-                      : "No release date"}
+                    {format(new Date(resource.created_at), "PPP")}
                   </div>
                 </div>
                 <CardTitle className="text-lg font-bold text-gray-800">
@@ -222,6 +245,14 @@ export default function ResourcesPage({
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-600">
                   {resource.channel_name || "Unicorn Landing"}
+                  <div className="mt-2 text-xs text-gray-500">
+                    {resource.release_date
+                      ? `Release Date: ${format(
+                          new Date(resource.release_date),
+                          "PPP"
+                        )}`
+                      : "No release date"}
+                  </div>
                 </CardDescription>
               </CardHeader>
               <CardContent className="pb-2">

@@ -1,257 +1,302 @@
 ---
 import { getPostBySlug, getPosts } from "@/lib/supabase/blog";
 const { slug } = Astro.params;
-const post = await getPostBySlug(Astro.request, Astro.cookies, slug);
+const post = await getPostById(
+  Astro.request,
+  Astro.cookies,
+  parseInt(slug as string)
+);
 
 import Layout from "@/layouts/Layout.astro";
 import { format } from "date-fns";
+import { getPostById } from "@/lib/supabase/community-posts";
 ---
 
 <Layout title={`${post.title} - Unicorn Landing`}>
-    <article class="max-w-4xl mx-auto px-4 py-24">
-        <!-- Header -->
-        <div class="mb-8 text-center">
-            <!-- <div class="flex justify-center space-x-2 mb-4">
-        {post.tags?.map((tag) => (
-          <Badge variant="outline" class="bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100 rounded-full">
-            {tag}
-          </Badge>
-        ))}
-      </div> -->
+  <div class="min-h-screen bg-gray-50">
+    <!-- Simple Header -->
+    <div class="bg-white border-b border-gray-200">
+      <div class="max-w-5xl mx-auto px-6 py-12">
+        <div class="flex items-center text-sm text-gray-500 mb-4">
+          <a href="/community" class="hover:text-gray-700">Community</a>
+          <span class="mx-2">/</span>
+          <a href="/community/resources" class="hover:text-gray-700"
+            >Resources</a
+          >
+          <span class="mx-2">/</span>
+          <span>Resource</span>
+        </div>
 
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center space-x-3 mb-3">
+              <h1 class="text-3xl font-bold text-gray-900">
                 {post.title}
-            </h1>
-
-            <p class="text-xl text-gray-600 mb-6">{post.excerpt}</p>
-
-            <div class="flex items-center justify-center space-x-4">
-                <div class="flex items-center">
-                    <!-- <div class="text-left">
-                        <div class="font-medium text-gray-900">
-                            {post.author.name}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {post.author.title}
-                        </div>
-                    </div> -->
-                </div>
-
-                <div class="text-gray-500 text-sm">
-                    <span>{format(new Date(post.created_at || new Date()), "PPP")}</span>
-                    <span class="mx-2">•</span>
-                    <!-- <span>{readingTime} min read</span> -->
-                </div>
+              </h1>
+              <span
+                class="px-2 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium"
+              >
+                Community
+              </span>
             </div>
-        </div>
 
-        <!-- Featured Image -->
-        {
-            post.featured_image && (
-                <div class="rounded-2xl overflow-hidden mb-8 shadow-md">
-                    <img
-                        src={post.featured_image}
-                        alt={post.title}
-                        class="w-full h-auto object-cover max-h-[500px]"
-                    />
-                </div>
-            )
-        }
+            <p class="text-lg text-gray-600 mb-4 max-w-3xl">
+              {post.description}
+            </p>
 
-        <!-- Content with Tailwind Prose -->
-        <div class="prose prose-pink lg:prose-lg mx-auto max-w-none">
-            <div set:html={post.content} />
-        </div>
-
-        <!-- Related Posts -->
-        <!-- {relatedPosts.length > 0 && (
-      <div class="mt-16">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Related Articles</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {relatedPosts.map((post) => (
-            <a href={`/blog/${post.slug}`} class="group">
-              <div class="border border-pink-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-pink-300 transition-all duration-300">
-                {post.data.image && (
-                  <div class="aspect-video overflow-hidden">
-                    <img
-                      src={post.data.image}
-                      alt={post.data.title}
-                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                )}
-                <div class="p-4">
-                  <h3 class="font-semibold text-gray-900 mb-1 group-hover:text-pink-600">{post.data.title}</h3>
-                  <p class="text-sm text-gray-600 line-clamp-2">{post.data.description}</p>
-                </div>
-              </div>
-            </a>
-          ))}
+            <div class="flex items-center space-x-4 text-sm text-gray-500">
+              <span
+                >Shared {
+                  format(new Date(post.created_at || new Date()), "MMM d, yyyy")
+                }</span
+              >
+              <span>•</span>
+              <span>External Resource</span>
+            </div>
+          </div>
         </div>
       </div>
-    )} -->
+    </div>
 
-        <!-- Share and Navigation -->
-        <div
-            class="mt-12 pt-6 border-t border-gray-200 flex justify-between items-center"
-        >
-            <div class="flex space-x-2">
-                <button
-                    class="p-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-colors"
-                >
-                    <span class="sr-only">Share on Twitter</span>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-twitter"
-                        ><path
-                            d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"
-                        ></path></svg
-                    >
-                </button>
-                <button
-                    class="p-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-colors"
-                >
-                    <span class="sr-only">Share on Facebook</span>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-facebook"
-                        ><path
-                            d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
-                        ></path></svg
-                    >
-                </button>
-                <button
-                    class="p-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-colors"
-                >
-                    <span class="sr-only">Share via Email</span>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-mail"
-                        ><rect width="20" height="16" x="2" y="4" rx="2"
-                        ></rect><path
-                            d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
-                        ></path></svg
-                    >
-                </button>
-            </div>
+    <!-- Main Content -->
+    <div class="max-w-5xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <!-- Content -->
+        <div class="md:col-span-3">
+          <!-- Cover Image -->
+          {
+            post.cover_image && (
+              <div class="rounded-lg overflow-hidden mb-8">
+                <img
+                  src={post.cover_image}
+                  alt={post.title}
+                  class="w-full h-64 object-cover"
+                />
+              </div>
+            )
+          }
 
-            <div class="flex space-x-4">
-                <a
-                    href="/resources"
-                    class="text-pink-600 hover:text-pink-700 flex items-center"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-arrow-left mr-1"
-                        ><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"
-                        ></path></svg
-                    >
-                    All Articles
-                </a>
-            </div>
+          <!-- Resource Content -->
+          <div class="prose prose-gray max-w-none">
+            <div set:html={post.body} />
+          </div>
+
+          <!-- External Link Card (if this is an external resource) -->
         </div>
-    </article>
+
+        <!-- Simple Sidebar -->
+        <div class="md:col-span-1">
+          <div class="sticky top-8 space-y-6">
+            <!-- Quick Actions -->
+            <div
+              class="mt-8 bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg p-6 border border-pink-200"
+            >
+              <div class="flex flex-col items-start space-y-4">
+                <div
+                  class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-6 h-6 text-pink-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
+                      clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <div class="">
+                  <p class="text-sm text-gray-600 mb-3">
+                    This resource is hosted externally. Click below to visit the
+                    original content.
+                  </p>
+                  <a
+                    href={post.associated_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors text-sm font-medium"
+                  >
+                    Visit Link
+                    <svg
+                      class="w-4 h-4 ml-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Related Community Resources -->
+            <!-- <div class="bg-white rounded-lg p-6 border border-gray-200">
+              <h3 class="font-medium text-gray-900 mb-4">
+                More from Community
+              </h3>
+              <div class="space-y-4">
+                <div
+                  class="border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+                >
+                  <a href="#" class="block">
+                    <h4
+                      class="text-sm font-medium text-gray-900 hover:text-pink-600 transition-colors mb-1"
+                    >
+                      Tech Conference 2025
+                    </h4>
+                    <p class="text-xs text-gray-500">Event • 2 days ago</p>
+                  </a>
+                </div>
+                <div
+                  class="border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+                >
+                  <a href="#" class="block">
+                    <h4
+                      class="text-sm font-medium text-gray-900 hover:text-pink-600 transition-colors mb-1"
+                    >
+                      Design System Guide
+                    </h4>
+                    <p class="text-xs text-gray-500">Content • 5 days ago</p>
+                  </a>
+                </div>
+                <div
+                  class="border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+                >
+                  <a href="#" class="block">
+                    <h4
+                      class="text-sm font-medium text-gray-900 hover:text-pink-600 transition-colors mb-1"
+                    >
+                      Productivity Tool
+                    </h4>
+                    <p class="text-xs text-gray-500">Product • 1 week ago</p>
+                  </a>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-gray-100">
+                <a
+                  href="/community/resources"
+                  class="text-sm text-pink-600 hover:text-pink-700 transition-colors"
+                >
+                  View all community resources →
+                </a>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simple Footer -->
+    <div class="bg-white border-t border-gray-200 mt-16">
+      <div class="max-w-5xl mx-auto px-6 py-8">
+        <div class="flex items-center justify-between">
+          <a
+            href="/resources"
+            class="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
+            Back to Resources
+          </a>
+
+          <!-- <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-500">Was this helpful?</span>
+            <button
+              class="text-gray-400 hover:text-green-500 transition-colors"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"
+                ></path>
+              </svg>
+            </button>
+            <button class="text-gray-400 hover:text-red-500 transition-colors">
+              <svg
+                class="w-5 h-5 transform rotate-180"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"
+                ></path>
+              </svg>
+            </button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
 </Layout>
 
 <style>
-    /* Additional custom styles for prose */
-    /* These styles will enhance the Tailwind prose defaults */
+  /* Clean, simple prose styles */
+  .prose {
+    @apply text-gray-700 leading-relaxed;
+  }
 
-    /* Custom blockquotes with pink accents */
-    .prose blockquote {
-        @apply border-l-4 border-pink-300 bg-pink-50 py-2 px-4 rounded-r-lg not-italic;
-    }
+  .prose h2 {
+    @apply text-xl font-semibold text-gray-900 mt-8 mb-4;
+  }
 
-    /* Custom link styling */
-    .prose a {
-        @apply text-pink-600 font-medium no-underline hover:text-pink-700 hover:underline transition-colors;
-    }
+  .prose h3 {
+    @apply text-lg font-medium text-gray-900 mt-6 mb-3;
+  }
 
-    /* Custom heading accents */
-    .prose h2::before {
-        content: "";
-        @apply block h-1 w-12 bg-pink-300 rounded-full mb-2;
-    }
+  .prose p {
+    @apply mb-4 leading-7;
+  }
 
-    /* Custom list markers */
-    .prose ul li::marker {
-        @apply text-pink-500;
-    }
+  .prose a {
+    @apply text-pink-600 hover:text-pink-700 transition-colors;
+  }
 
-    /* Code blocks */
-    .prose pre {
-        @apply bg-gray-900 text-gray-100 rounded-xl p-6 shadow-md;
-    }
+  .prose ul,
+  .prose ol {
+    @apply mb-4 space-y-1;
+  }
 
-    /* Inline code */
-    .prose :not(pre) > code {
-        @apply bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded-md font-normal;
-    }
+  .prose li {
+    @apply leading-7;
+  }
 
-    /* Tables */
-    .prose table {
-        @apply rounded-xl overflow-hidden shadow-sm border-spacing-0 border-separate;
-    }
+  .prose blockquote {
+    @apply border-l-4 border-gray-300 pl-4 py-2 italic text-gray-600;
+  }
 
-    .prose thead {
-        @apply bg-pink-100 text-pink-800;
-    }
+  .prose pre {
+    @apply bg-gray-900 text-gray-100 rounded-md p-4 overflow-x-auto text-sm;
+  }
 
-    .prose thead th {
-        @apply py-3 px-4;
-    }
+  .prose code {
+    @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm;
+  }
 
-    .prose tbody tr {
-        @apply border-b border-gray-200;
-    }
+  .prose pre code {
+    @apply bg-transparent text-gray-100 p-0;
+  }
 
-    .prose tbody tr:last-child {
-        @apply border-0;
-    }
+  .prose img {
+    @apply rounded-md;
+  }
 
-    .prose tbody td {
-        @apply py-3 px-4;
-    }
+  .prose table {
+    @apply w-full border-collapse border border-gray-300 rounded-md overflow-hidden;
+  }
 
-    /* Images */
-    .prose img {
-        @apply rounded-xl shadow-md;
-    }
+  .prose th {
+    @apply bg-gray-50 px-4 py-2 text-left font-medium border-b border-gray-300;
+  }
 
-    /* Figure captions */
-    .prose figcaption {
-        @apply text-center text-sm text-gray-500 italic mt-2;
-    }
+  .prose td {
+    @apply px-4 py-2 border-b border-gray-200;
+  }
 </style>
