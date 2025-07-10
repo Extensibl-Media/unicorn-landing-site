@@ -3,304 +3,293 @@ import phoneFeature from "../../assets/images/profile-phone.jpg";
 import clubsEvents from "../../assets/images/events-snip.png";
 import featured from "../../assets/images/featured-snip.png";
 import {
-    Calendar,
-    CirclePause,
-    CircleUserRound,
-    HandHeart,
-    UserRoundSearch,
-    Verified,
+  ArrowRightSquare,
+  Calendar,
+  CirclePause,
+  CircleUserRound,
+  HandHeart,
+  UserRoundSearch,
+  Verified,
 } from "lucide-astro";
+import { ArrowRight } from "@lucide/astro";
 ---
 
 <!-- Start -->
 <section class="relative md:py-24 py-16" id="features">
-    <div class="container relative">
-        <div class="grid grid-cols-1 pb-6 text-center">
-            <h6
-                class="text-pink-500 uppercase text-sm font-bold tracking-wider mb-3"
+  <div class="container relative">
+    <div class="grid grid-cols-1 pb-6 text-center">
+      <h6 class="text-pink-500 uppercase text-sm font-bold tracking-wider mb-3">
+        Features
+      </h6>
+      <h4
+        class="mb-6 md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
+      >
+        Women Connecting with Women in the Lifestyle
+      </h4>
+
+      <p class="text-slate-400 max-w-xl mx-auto">
+        Unicorn Landing is for all women, whether married, Single, Straight,
+        Bisexual, Experienced, or just curious! Explore, and Connect with other
+        like-minded women in a safe environment.
+      </p>
+    </div><!--end grid-->
+
+    <div class="grid grid-cols-12 mt-6 gap-6">
+      <div class="md:col-span-4 col-span-12 md:order-1 order-2">
+        <div class="grid grid-cols-1 gap-6 md:items-center">
+          <div class="group flex duration-500 xl:p-3">
+            <div
+              class="flex md:order-2 order-1 align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
             >
-                Features
-            </h6>
-            <h4
-                class="mb-6 md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
+              <CircleUserRound />
+            </div>
+            <div
+              class="flex-1 md:order-1 order-2 md:text-end md:me-4 md:ms-0 ms-4"
             >
-                Women Connecting with Women in the Lifestyle
-            </h4>
+              <h4 class="mb-0 text-lg font-semibold">
+                Let your personality shine
+              </h4>
+              <p class="text-slate-400 mt-3">
+                Create a unique profile that lets you shine and lets others know
+                what you're looking for.
+              </p>
+            </div>
+          </div>
+          <!--end feature-->
 
-            <p class="text-slate-400 max-w-xl mx-auto">
-                Unicorn Landing is for all women, whether married, Single,
-                Straight, Bisexual, Experienced, or just curious! Explore, and
-                Connect with other like-minded women in a safe environment.
-            </p>
-        </div><!--end grid-->
+          <div class="group flex duration-500 xl:p-3">
+            <div
+              class="flex md:order-2 order-1 align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
+            >
+              <HandHeart />
+            </div>
+            <div
+              class="flex-1 md:order-1 order-2 md:text-end md:me-4 md:ms-0 ms-4"
+            >
+              <h4 class="mb-0 text-lg font-semibold">Swipe Right to Connect</h4>
+              <p class="text-slate-400 mt-3">
+                The Swipe Game lets you quickly look through others in your
+                area. Swipe right to let them know you’re interested, and Swipe
+                left to pass.
+              </p>
+            </div>
+          </div>
+          <!--end feature-->
 
-        <div class="grid grid-cols-12 mt-6 gap-6">
-            <div class="md:col-span-4 col-span-12 md:order-1 order-2">
-                <div class="grid grid-cols-1 gap-6 md:items-center">
-                    <div class="group flex duration-500 xl:p-3">
-                        <div
-                            class="flex md:order-2 order-1 align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
-                        >
-                            <CircleUserRound />
-                        </div>
-                        <div
-                            class="flex-1 md:order-1 order-2 md:text-end md:me-4 md:ms-0 ms-4"
-                        >
-                            <h4 class="mb-0 text-lg font-semibold">
-                                Let your personality shine
-                            </h4>
-                            <p class="text-slate-400 mt-3">
-                                Create a unique profile that lets you shine and
-                                lets others know what you're looking for.
-                            </p>
-                        </div>
-                    </div>
-                    <!--end feature-->
+          <div class="group flex duration-500 xl:p-3">
+            <div
+              class="flex md:order-2 order-1 align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
+            >
+              <UserRoundSearch />
+            </div>
+            <div
+              class="flex-1 md:order-1 order-2 md:text-end md:me-4 md:ms-0 ms-4"
+            >
+              <h4 class="mb-0 text-lg font-semibold">
+                Connect while on the go
+              </h4>
+              <p class="text-slate-400 mt-3">
+                Search for others locally or by a specific location! This
+                feature is perfect for those who like to travel for the
+                Lifestyle.
+              </p>
+            </div>
+          </div>
+          <!--end feature-->
+        </div>
+      </div>
 
-                    <div class="group flex duration-500 xl:p-3">
-                        <div
-                            class="flex md:order-2 order-1 align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
-                        >
-                            <HandHeart />
-                        </div>
-                        <div
-                            class="flex-1 md:order-1 order-2 md:text-end md:me-4 md:ms-0 ms-4"
-                        >
-                            <h4 class="mb-0 text-lg font-semibold">
-                                Swipe Right to Connect
-                            </h4>
-                            <p class="text-slate-400 mt-3">
-                                The Swipe Game lets you quickly look through
-                                others in your area. Swipe right to let them
-                                know you’re interested, and Swipe left to pass.
-                            </p>
-                        </div>
-                    </div>
-                    <!--end feature-->
+      <div class="md:col-span-4 col-span-12 mx-auto lg:mx-4 md:order-2 order-1">
+        <img
+          src={phoneFeature.src}
+          class="mx-auto w-full max-w-xs sticky top-0"
+          alt="Custom Profiles for you"
+        />
+      </div>
 
-                    <div class="group flex duration-500 xl:p-3">
-                        <div
-                            class="flex md:order-2 order-1 align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
-                        >
-                            <UserRoundSearch />
-                        </div>
-                        <div
-                            class="flex-1 md:order-1 order-2 md:text-end md:me-4 md:ms-0 ms-4"
-                        >
-                            <h4 class="mb-0 text-lg font-semibold">
-                                Connect while on the go
-                            </h4>
-                            <p class="text-slate-400 mt-3">
-                                Search for others locally or by a specific
-                                location! This feature is perfect for those who
-                                like to travel for the Lifestyle.
-                            </p>
-                        </div>
-                    </div>
-                    <!--end feature-->
-                </div>
+      <div class="md:col-span-4 col-span-12 order-3">
+        <div class="grid grid-cols-1 gap-6">
+          <div class="group flex duration-500 xl:p-3">
+            <div
+              class="flex align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
+            >
+              <Verified />
+            </div>
+            <div class="flex-1 ms-4">
+              <h4 class="mb-0 text-lg font-semibold">Get verified!</h4>
+              <p class="text-slate-400 mt-3">
+                Verification feature lets others know you’re human!
+              </p>
+            </div>
+          </div>
+          <!--end feature-->
+
+          <div class="group flex duration-500 xl:p-3">
+            <div
+              class="flex align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
+            >
+              <Calendar />
+            </div>
+            <div class="flex-1 ms-4">
+              <h4 class="mb-0 text-lg font-semibold">New Clubs and Events</h4>
+              <p class="text-slate-400 mt-3">
+                Search for Local Lifestyle Clubs and Events! Ladies, you can
+                leave club reviews and share your experiences with others.
+              </p>
+            </div>
+          </div>
+          <!--end feature-->
+
+          <div class="group flex duration-500 xl:p-3">
+            <div
+              class="flex align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
+            >
+              <CirclePause />
+            </div>
+            <div class="flex-1 ms-4">
+              <h4 class="mb-0 text-lg font-semibold">Pause anytime</h4>
+              <p class="text-slate-400 mt-3">
+                Snooze Feature allows you to take a break and return when you’re
+                ready!
+              </p>
+            </div>
+          </div>
+          <!--end feature-->
+        </div>
+      </div>
+    </div><!--end grid-->
+  </div><!--end container-->
+
+  <div class="container relative md:mt-24 mt-16">
+    <div class="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
+      <div class="lg:col-span-5 md:col-span-6">
+        <div
+          class="pt-6 px-6 rounded-2xl bg-pink-500/5 shadow shadow-pink-500/20"
+        >
+          <img
+            src={clubsEvents.src}
+            alt="Clubs and Events Screen"
+            class="w-full max-w-[300px] mx-auto"
+          />
+        </div>
+      </div><!--end grid-->
+
+      <div class="lg:col-span-7 md:col-span-6">
+        <div class="lg:ms-10 space-y-4">
+          <h6 class="text-pink-500 uppercase text-sm font-bold tracking-wider">
+            Events
+          </h6>
+          <h4
+            class="md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
+          >
+            Search for Local Events or Events around the Country.
+          </h4>
+          <p class="text-slate-400 max-w-xl">
+            Attend events within the community and meet up in a safe and fun
+            environment.
+          </p>
+
+          <div class="grid lg:grid-cols-2 grid-cols-1 gap-4">
+            <div
+              class="group flex relative overflow-hidden p-6 rounded-md shadow dark:shadow-gray-800 bg-slate-50/50 hover:bg-pink-500 duration-500"
+            >
+              <span
+                class="text-pink-500 group-hover:text-white text-5xl font-semibold duration-500"
+              >
+                <i data-feather="shield" class="size-8 mt-2"></i>
+              </span>
+              <div class="flex-1 ms-3">
+                <h5
+                  class="group-hover:text-white text-lg font-semibold duration-500"
+                >
+                  Sponsored Events
+                </h5>
+                <p
+                  class="text-slate-400 group-hover:text-white/50 duration-500 mt-2"
+                >
+                  Attend Unicorn Landing exclusive events
+                </p>
+              </div>
+              <div
+                class="absolute start-1 top-5 text-slate-900/[0.02] dark:text-white/[0.03] text-8xl group-hover:text-white/[0.1] duration-500"
+              >
+                <i data-feather="shield" class="size-24"></i>
+              </div>
             </div>
 
             <div
-                class="md:col-span-4 col-span-12 mx-auto lg:mx-4 md:order-2 order-1"
+              class="group flex relative overflow-hidden p-6 rounded-md shadow dark:shadow-gray-800 bg-slate-50/50 hover:bg-pink-500 duration-500"
             >
-                <img
-                    src={phoneFeature.src}
-                    class="mx-auto w-full max-w-xs sticky top-0"
-                    alt="Custom Profiles for you"
-                />
-            </div>
-
-            <div class="md:col-span-4 col-span-12 order-3">
-                <div class="grid grid-cols-1 gap-6">
-                    <div class="group flex duration-500 xl:p-3">
-                        <div
-                            class="flex align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
-                        >
-                            <Verified />
-                        </div>
-                        <div class="flex-1 ms-4">
-                            <h4 class="mb-0 text-lg font-semibold">
-                                Get verified!
-                            </h4>
-                            <p class="text-slate-400 mt-3">
-                                Verification feature lets others know you’re
-                                human!
-                            </p>
-                        </div>
-                    </div>
-                    <!--end feature-->
-
-                    <div class="group flex duration-500 xl:p-3">
-                        <div
-                            class="flex align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
-                        >
-                            <Calendar />
-                        </div>
-                        <div class="flex-1 ms-4">
-                            <h4 class="mb-0 text-lg font-semibold">
-                                New Clubs and Events
-                            </h4>
-                            <p class="text-slate-400 mt-3">
-                                Search for Local Lifestyle Clubs and Events!
-                                Ladies, you can leave club reviews and share
-                                your experiences with others.
-                            </p>
-                        </div>
-                    </div>
-                    <!--end feature-->
-
-                    <div class="group flex duration-500 xl:p-3">
-                        <div
-                            class="flex align-middle justify-center items-center size-16 mt-1 bg-pink-500/5 group-hover:bg-pink-500 group-hover:text-white text-pink-500 rounded-2xl text-2xl shadow-sm dark:shadow-gray-800 duration-500"
-                        >
-                            <CirclePause />
-                        </div>
-                        <div class="flex-1 ms-4">
-                            <h4 class="mb-0 text-lg font-semibold">
-                                Pause anytime
-                            </h4>
-                            <p class="text-slate-400 mt-3">
-                                Snooze Feature allows you to take a break and
-                                return when you’re ready!
-                            </p>
-                        </div>
-                    </div>
-                    <!--end feature-->
-                </div>
-            </div>
-        </div><!--end grid-->
-    </div><!--end container-->
-
-    <div class="container relative md:mt-24 mt-16">
-        <div class="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
-            <div class="lg:col-span-5 md:col-span-6">
-                <div
-                    class="pt-6 px-6 rounded-2xl bg-pink-500/5 shadow shadow-pink-500/20"
+              <span
+                class="text-pink-500 group-hover:text-white text-5xl font-semibold duration-500"
+              >
+                <i data-feather="aperture" class="size-8 mt-2"></i>
+              </span>
+              <div class="flex-1 ms-3">
+                <h5
+                  class="group-hover:text-white text-lg font-semibold duration-500"
                 >
-                    <img
-                        src={clubsEvents.src}
-                        alt="Clubs and Events Screen"
-                        class="w-full max-w-[300px] mx-auto"
-                    />
-                </div>
-            </div><!--end grid-->
-
-            <div class="lg:col-span-7 md:col-span-6">
-                <div class="lg:ms-10 space-y-4">
-                    <h6
-                        class="text-pink-500 uppercase text-sm font-bold tracking-wider"
-                    >
-                        Events
-                    </h6>
-                    <h4
-                        class="md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
-                    >
-                        Search for Local Events or Events around the Country.
-                    </h4>
-                    <p class="text-slate-400 max-w-xl">
-                        Attend events within the community and meet up in a safe
-                        and fun environment.
-                    </p>
-
-                    <div class="grid lg:grid-cols-2 grid-cols-1 gap-4">
-                        <div
-                            class="group flex relative overflow-hidden p-6 rounded-md shadow dark:shadow-gray-800 bg-slate-50/50 hover:bg-pink-500 duration-500"
-                        >
-                            <span
-                                class="text-pink-500 group-hover:text-white text-5xl font-semibold duration-500"
-                            >
-                                <i data-feather="shield" class="size-8 mt-2"
-                                ></i>
-                            </span>
-                            <div class="flex-1 ms-3">
-                                <h5
-                                    class="group-hover:text-white text-lg font-semibold duration-500"
-                                >
-                                    Sponsored Events
-                                </h5>
-                                <p
-                                    class="text-slate-400 group-hover:text-white/50 duration-500 mt-2"
-                                >
-                                    Attend Unicorn Landing exclusive events
-                                </p>
-                            </div>
-                            <div
-                                class="absolute start-1 top-5 text-slate-900/[0.02] dark:text-white/[0.03] text-8xl group-hover:text-white/[0.1] duration-500"
-                            >
-                                <i data-feather="shield" class="size-24"></i>
-                            </div>
-                        </div>
-
-                        <div
-                            class="group flex relative overflow-hidden p-6 rounded-md shadow dark:shadow-gray-800 bg-slate-50/50 hover:bg-pink-500 duration-500"
-                        >
-                            <span
-                                class="text-pink-500 group-hover:text-white text-5xl font-semibold duration-500"
-                            >
-                                <i data-feather="aperture" class="size-8 mt-2"
-                                ></i>
-                            </span>
-                            <div class="flex-1 ms-3">
-                                <h5
-                                    class="group-hover:text-white text-lg font-semibold duration-500"
-                                >
-                                    Host an Event
-                                </h5>
-                                <p
-                                    class="text-slate-400 group-hover:text-white/50 duration-500 mt-2"
-                                >
-                                    Want us to share your event on the app?
-                                    Email us at hello@unicornlanding.com with
-                                    the details.
-                                </p>
-                            </div>
-                            <div
-                                class="absolute start-1 top-5 text-slate-900/[0.02] dark:text-white/[0.03] text-8xl group-hover:text-white/[0.1] duration-500"
-                            >
-                                <i data-feather="aperture" class="size-24"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div><!--end grid-->
-    </div><!--end container-->
-
-    <div class="container relative md:mt-24 mt-16">
-        <div class="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
-            <div class="lg:col-span-5 md:col-span-6 md:order-2 order-1">
-                <div
-                    class="pt-6 px-6 rounded-2xl bg-pink-500/5 shadow shadow-pink-500/20"
+                  Host an Event
+                </h5>
+                <p
+                  class="text-slate-400 group-hover:text-white/50 duration-500 mt-2"
                 >
-                    <img
-                        src={featured.src}
-                        alt="Feature Your Profile"
-                        class="w-full max-w-[300px] mx-auto"
-                    />
-                </div>
-            </div><!--end grid-->
-
-            <div class="lg:col-span-7 md:col-span-6 md:order-1 order-2">
-                <div class="lg:me-10 space-y-4">
-                    <h6
-                        class="text-pink-500 uppercase text-sm font-bold tracking-wider"
-                    >
-                        Feature your Profile
-                    </h6>
-                    <h4
-                        class="md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
-                    >
-                        Want to stand out and let your profile shine?
-                    </h4>
-                    <p class="text-slate-400 max-w-xl">
-                        Becoming a featured member boosts your profile to the
-                        top of searches, makes you stand out in the community,
-                        and boosts your match rate!
-                    </p>
-                </div>
+                  Want us to share your event on the app? Submit it for review
+                  and we will add it once approved.
+                </p>
+                <a
+                  class="mt-2 group-hover:text-white hover:underline flex items-center gap-2"
+                  href="/submit-an-event"
+                  >Submit your event here <ArrowRight
+                    class="group-hover:translate-x-2 duration-500"
+                    size={16}
+                  /></a
+                >
+              </div>
+              <div
+                class="absolute start-1 top-5 text-slate-900/[0.02] dark:text-white/[0.03] text-8xl group-hover:text-white/[0.1] duration-500"
+              >
+                <i data-feather="aperture" class="size-24"></i>
+              </div>
             </div>
-        </div><!--end grid-->
-    </div><!--end container-->
+          </div>
+        </div>
+      </div>
+    </div><!--end grid-->
+  </div><!--end container-->
+
+  <div class="container relative md:mt-24 mt-16">
+    <div class="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
+      <div class="lg:col-span-5 md:col-span-6 md:order-2 order-1">
+        <div
+          class="pt-6 px-6 rounded-2xl bg-pink-500/5 shadow shadow-pink-500/20"
+        >
+          <img
+            src={featured.src}
+            alt="Feature Your Profile"
+            class="w-full max-w-[300px] mx-auto"
+          />
+        </div>
+      </div><!--end grid-->
+
+      <div class="lg:col-span-7 md:col-span-6 md:order-1 order-2">
+        <div class="lg:me-10 space-y-4">
+          <h6 class="text-pink-500 uppercase text-sm font-bold tracking-wider">
+            Feature your Profile
+          </h6>
+          <h4
+            class="md:text-3xl text-2xl md:leading-normal leading-normal font-bold"
+          >
+            Want to stand out and let your profile shine?
+          </h4>
+          <p class="text-slate-400 max-w-xl">
+            Becoming a featured member boosts your profile to the top of
+            searches, makes you stand out in the community, and boosts your
+            match rate!
+          </p>
+        </div>
+      </div>
+    </div><!--end grid-->
+  </div><!--end container-->
 </section><!--end section-->
 <!-- End -->
