@@ -7,67 +7,66 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const { id } = Astro.params;
 
 const post = await fetch(`${PUBLIC_SITE_URL}/api/blog/${id}`, { method: "GET" })
-    .then(async (res) => {
-        const data = await res.json();
-        console.log(data);
-        return data;
-    })
-    .catch((err) => {
-        console.error(err);
-        return null;
-    });
+  .then(async (res) => {
+    const data = await res.json();
+    return data;
+  })
+  .catch((err) => {
+    console.error(err);
+    return null;
+  });
 
 if (Astro.request.method === "PATCH") {
-    try {
-        // Parse the JSON body from the request
-        const postData = await Astro.request.json();
+  try {
+    // Parse the JSON body from the request
+    const postData = await Astro.request.json();
 
-        // Create Supabase client
-        const supabase = createAdminClient();
+    // Create Supabase client
+    const supabase = createAdminClient();
 
-        // Insert post into database
-        const { error } = await supabase.from("posts").update({
-            title: postData.title,
-            content: postData.content,
-            excerpt: postData.excerpt,
-            seo_title: postData.seo_title,
-            seo_description: postData.seo_description,
-            featured_image: postData.featured_image,
-            status: postData.status || "draft",
-            udpated_at: new Date().toISOString(),
-        });
+    // Insert post into database
+    const { error } = await supabase.from("posts").update({
+      title: postData.title,
+      content: postData.content,
+      excerpt: postData.excerpt,
+      seo_title: postData.seo_title,
+      seo_description: postData.seo_description,
+      featured_image: postData.featured_image,
+      status: postData.status || "draft",
+      udpated_at: new Date().toISOString(),
+    });
 
-        if (error) {
-            console.log(error);
-            throw error;
-        }
-
-        // Redirect on success
-        return Astro.redirect("/admin/blog");
-    } catch (error) {
-        console.error("Error processing form:", error);
-        return new Response(
-            JSON.stringify({
-                success: false,
-                message: error.message || "Failed to update post",
-            }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" },
-            },
-        );
+    if (error) {
+      console.log(error);
+      throw error;
     }
+
+    // Redirect on success
+    return Astro.redirect("/admin/blog");
+  } catch (error) {
+    console.error("Error processing form:", error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: error.message || "Failed to update post",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 }
 ---
 
 <AdminLayout title="Edit Post">
-    <div class="flex justify-end items-center">
-        <a
-            href="/admin/blog"
-            class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
-        >
-            Back to Posts
-        </a>
-    </div>
-    <PostForm client:only post={post} />
+  <div class="flex justify-end items-center">
+    <a
+      href="/admin/blog"
+      class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+    >
+      Back to Posts
+    </a>
+  </div>
+  <PostForm client:only post={post} />
 </AdminLayout>

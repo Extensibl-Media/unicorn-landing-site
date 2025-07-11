@@ -1,103 +1,97 @@
 ---
 // src/pages/admin/podcasts/[id]/edit.astro
+import { NewCommunityPostForm } from "@/components/admin/new-community-post-form";
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
 import { EditPodcastForm } from "@/components/admin/edit-podcast-form";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getPostById } from "@/lib/supabase/community-posts";
 import { getPodcastById, getChannels } from "@/lib/supabase/podcasts";
 
 // Get the podcast ID from the URL
 const { id } = Astro.params;
 if (!id) {
-    return Astro.redirect("/admin/podcasts");
+  return Astro.redirect("/admin/podcasts");
 }
 
 // Fetch the podcast data and channel options
-const podcast = await getPodcastById(
-    Astro.request,
-    Astro.cookies,
-    parseInt(id),
-);
-const channels = await getChannels(Astro.request, Astro.cookies);
+const post = await getPostById(Astro.request, Astro.cookies, parseInt(id));
 
 // If podcast doesn't exist, redirect to the list page
-if (!podcast) {
-    return Astro.redirect("/admin/podcasts");
+if (!post) {
+  return Astro.redirect("/admin/podcasts");
 }
 
 if (Astro.request.method === "PATCH") {
-    try {
-        // Parse the JSON body from the request
-        const podcastData = await Astro.request.json();
+  try {
+    // Parse the JSON body from the request
+    const postData = await Astro.request.json();
 
-        // Create Supabase client
-        const supabase = createAdminClient();
+    // Create Supabase client
+    const supabase = createAdminClient();
 
-        // Insert podcast into database
-        const { error } = await supabase.from("podcast_links").update({
-            title: podcastData.title,
-            subtitle: podcastData.subtitle,
-            channel_name: podcastData.channel_name,
-            external_url: podcastData.external_url,
-            image_url: podcastData.image_url,
-            duration: podcastData.duration,
-            release_date: podcastData.release_date,
-            updated_at: new Date().toISOString(),
-        });
+    // Insert podcast into database
+    const { error } = await supabase
+      .from("community_posts")
+      .update({
+        title: postData.title,
+        description: postData.description,
+        associated_link: postData.associated_link,
+        cover_image: postData.cover_image,
+        body: postData.body,
+      })
+      .eq("id", parseInt(id));
 
-        if (error) {
-            console.log(error);
-            throw error;
-        }
-
-        // Redirect on success
-        return Astro.redirect("/admin/podcasts");
-    } catch (error) {
-        console.error("Error processing form:", error);
-        return new Response(
-            JSON.stringify({
-                success: false,
-                message: error.message || "Failed to update podcast",
-            }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" },
-            },
-        );
+    if (error) {
+      console.log(error);
+      throw error;
     }
+
+    // Redirect on success
+    return Astro.redirect("/admin/community-posts");
+  } catch (error) {
+    console.error("Error processing form:", error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: error.message || "Failed to update post",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 }
 ---
 
-<AdminLayout title={`Edit Podcast: ${podcast.title}`}>
-    <div class="space-y-4">
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold">Edit Podcast</h1>
-                <p class="text-muted-foreground">
-                    Update podcast details for "{podcast.title}"
-                </p>
-            </div>
-            <div class="flex gap-2">
-                <a
-                    href={`/admin/podcasts/${id}`}
-                    class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
-                >
-                    View Details
-                </a>
-                <a
-                    href="/admin/podcasts"
-                    class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
-                >
-                    Back to Podcasts
-                </a>
-            </div>
-        </div>
-
-        <div class="border rounded-lg p-6">
-            <EditPodcastForm
-                client:load
-                podcast={podcast}
-                channels={channels}
-            />
-        </div>
+<AdminLayout title={`Edit Podcast: ${post.title}`}>
+  <div class="space-y-4">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">Edit Post</h1>
+        <p class="text-muted-foreground">
+          Update community post details for "{post.title}"
+        </p>
+      </div>
+      <div class="flex gap-2">
+        <a
+          href={`/admin/community-posts/${id}`}
+          class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+        >
+          View Details
+        </a>
+        <a
+          href="/admin/ccommunity-posts"
+          class="bg-secondary text-secondary-foreground px-4 py-2 rounded-md"
+        >
+          Back to Posts
+        </a>
+      </div>
     </div>
+
+    <div class="border rounded-lg p-6">
+      <!-- <EditPodcastForm client:load podcast={podcast} channels={channels} /> -->
+      <NewCommunityPostForm client:load post={post} />
+    </div>
+  </div>
 </AdminLayout>
