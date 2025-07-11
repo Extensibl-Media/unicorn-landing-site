@@ -39,10 +39,6 @@ export default function PostForm({ post }: { post?: Post }) {
     },
   });
 
-  React.useEffect(() => {
-    console.log(content);
-  }, [content]);
-
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -89,7 +85,7 @@ export default function PostForm({ post }: { post?: Post }) {
               });
               const transaction = view.state.tr.insert(
                 view.state.selection.from,
-                node,
+                node
               );
               view.dispatch(transaction);
 

@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import type { CommunityPost } from "@/lib/supabase/community-posts";
 
 // Define the form schema for community posts
 const formSchema = z.object({
@@ -30,7 +31,7 @@ const formSchema = z.object({
     .min(1, "Cover image URL is required"),
 });
 
-export function NewCommunityPostForm() {
+export function NewCommunityPostForm({ post }: { post?: CommunityPost }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,11 +39,11 @@ export function NewCommunityPostForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      associated_link: "",
-      body: "",
-      cover_image: "",
+      title: post?.title || "",
+      description: post?.description || "",
+      associated_link: post?.associated_link || "",
+      body: post?.body || "",
+      cover_image: post?.cover_image || "",
     },
   });
 
@@ -52,23 +53,36 @@ export function NewCommunityPostForm() {
     setError(null);
 
     try {
-      const response = await fetch(`/admin/community-posts/new`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: values.title,
-          description: values.description,
-          associated_link: values.associated_link,
-          body: values.body,
-          cover_image: values.cover_image,
-        }),
-      });
+      if (post) {
+        await fetch(`/admin/community-posts/${post.id}/edit`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(values),
+        });
+      } else {
+        const response = await fetch(`/admin/community-posts/new`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: values.title,
+            description: values.description,
+            associated_link: values.associated_link,
+            body: values.body,
+            cover_image: values.cover_image,
+          }),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create community post");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || "Failed to create community post"
+          );
+        }
       }
 
       // Redirect will be handled by the server
@@ -208,7 +222,9 @@ export function NewCommunityPostForm() {
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Community Post"}
+            {isSubmitting
+              ? "Loading..."
+              : `${post ? "Save" : "Create"} Community Post`}
           </Button>
         </div>
       </form>
