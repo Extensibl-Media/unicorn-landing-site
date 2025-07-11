@@ -83,8 +83,8 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
           to: data?.email,
           subject: `Your Unicorn Landing Verification Request has been approved!`,
           html: `<h1>Unicorn Landing</h1><br />
-      <p>Your account has been verified.</p> <br />
-      <p>Your account will now feature a Verified checkmark, letting others know your profile can be trusted.</p> <br />
+      <p>Your profile has been verified.</p> <br />
+      <p>Your profile will now feature a Verified checkmark, letting others know your profile can be trusted.</p> <br />
       <p>Thank you, The Unicorn Landing App Team</p> <br />`,
         },
       });
@@ -94,8 +94,8 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
           to: data?.email,
           subject: `Your Unicorn Landing Verification Request has been denied.`,
           html: `<h1>Unicorn Landing</h1><br />
-      <p>Your request for account approval has been denied.</p> <br />
-      <p>Please check your account. If you wish to resubmit a new request, please check your account settings and provide a new photo that adheres to our verification guidelines.</p> <br />
+      <p>Your request for profile verification has been denied.</p> <br />
+      <p>If you wish to resubmit a new request, please check your account settings and provide a new photo that adheres to our verification guidelines.</p> <br />
       <p>Thank you, The Unicorn Landing App Team</p> <br />`,
         },
       });
